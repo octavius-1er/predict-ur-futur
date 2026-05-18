@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Future Scanner 3000</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon: #00f5ff;
+    --neon2: #ff00ff;
+    --gold: #ffd700;
+    --bg: #030a14;
+    --panel: #071525;
+    --card-back: #0d2137;
+    --glow: 0 0 20px rgba(0,245,255,0.6);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Exo 2', sans-serif;
+    color: #cceeff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── STARS ── */
+  .stars {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 10%, rgba(255,255,255,.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 70%, rgba(255,255,255,.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 50%, rgba(255,255,255,.4) 0%, transparent 100%);
+    background-size: 200px 200px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative; z-index: 2;
+    text-align: center;
+    padding: 28px 20px 10px;
+  }
+  header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.6rem, 5vw, 3rem);
+    font-weight: 900;
+    letter-spacing: 4px;
+    background: linear-gradient(90deg, var(--neon), var(--neon2), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 0 12px rgba(0,245,255,.6));
+  }
+  header p {
+    font-size: .9rem;
+    color: rgba(180,230,255,.5);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ── SCREENS ── */
+  .screen {
+    position: relative; z-index: 2;
+    width: 100%; max-width: 700px;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn .5s ease;
+  }
+  .screen.active { display: flex; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+
+  /* ── SCAN SCREEN ── */
+  #scanBox {
+    margin-top: 24px;
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+  }
+  .scan-instruction {
+    font-size: 1rem;
+    letter-spacing: 1px;
+    color: rgba(180,230,255,.7);
+    text-align: center;
+  }
+  .fingerprint-wrap {
+    position: relative;
+    width: 200px; height: 200px;
+    cursor: pointer;
+    user-select: none;
+    overflow: visible;
+  }
+  .fp-ring {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--neon);
+    animation: ringPulse 2s ease-in-out infinite;
+    opacity: .4;
+  }
+  .fp-ring:nth-child(2) { animation-delay: .5s; transform: scale(1.15); opacity:.25; }
+  .fp-ring:nth-child(3) { animation-delay: 1s; transform: scale(1.3); opacity:.15; }
+  @keyframes ringPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,245,255,.4); }
+    50% { box-shadow: 0 0 30px 10px rgba(0,245,255,.1); }
+  }
+  /* hold-to-scan ring */
+  .fp-icon {
+    position: relative; z-index: 1;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 2px solid var(--neon);
+    display: flex; align-items: center; justify-content: center;
+    transition: box-shadow .15s;
+    box-shadow: 0 0 20px rgba(0,245,255,.3), inset 0 0 30px rgba(0,245,255,.05);
+    cursor: pointer;
+  }
+  .fp-hold-ring {
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 3;
+    width: calc(100% + 16px);
+    height: calc(100% + 16px);
+  }
+  .fp-hold-ring svg {
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+    display: block;
+  }
+  .fp-hold-ring circle {
+    fill: none;
+    stroke: var(--neon2);
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 667;
+    stroke-dashoffset: 667;
+    transition: stroke-dashoffset .05s linear;
+    filter: drop-shadow(0 0 6px var(--neon2));
+  }
+  .fp-icon.holding {
+    box-shadow: 0 0 60px rgba(255,0,255,.5), inset 0 0 40px rgba(255,0,255,.1);
+    border-color: var(--neon2);
+  }
+  .fp-icon:hover { box-shadow: 0 0 40px rgba(0,245,255,.7), inset 0 0 30px rgba(0,245,255,.1); }
+  .fp-icon:active { transform: scale(.97); }
+  .fp-icon svg { width: 110px; height: 110px; }
+  .fp-icon svg path { stroke: var(--neon); stroke-width: 1.5; fill: none; }
+
+  /* scan progress */
+  .scan-bar-wrap {
+    width: 220px; height: 6px;
+    background: rgba(0,245,255,.1);
+    border-radius: 3px;
+    overflow: hidden;
+    display: none;
+  }
+  .scan-bar {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--neon), var(--neon2));
+    border-radius: 3px;
+    transition: width .05s linear;
+  }
+  .scan-status {
+    font-family: 'Orbitron', monospace;
+    font-size: .75rem;
+    color: var(--neon);
+    letter-spacing: 2px;
+    min-height: 20px;
+  }
+
+  /* ── CARD SCREEN ── */
+  .pick-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    color: var(--neon);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .pick-sub {
+    font-size: .8rem;
+    color: rgba(180,230,255,.5);
+    text-align: center;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+  .cards-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+  }
+
+  /* card flip */
+  .card-wrap {
+    perspective: 800px;
+    width: 110px; height: 150px;
+    cursor: pointer;
+  }
+  .card-inner {
+    width: 100%; height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform .7s cubic-bezier(.4,.2,.2,1);
+  }
+  .card-wrap.flipped .card-inner { transform: rotateY(180deg); }
+  .card-wrap.disabled { cursor: default; }
+
+  .card-face {
+    position: absolute; inset: 0;
+    border-radius: 14px;
+    backface-visibility: hidden;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px;
+    padding: 10px;
+  }
+  .card-back-face {
+    background: var(--card-back);
+    border: 1.5px solid rgba(0,245,255,.35);
+    box-shadow: 0 4px 24px rgba(0,0,0,.5), inset 0 0 20px rgba(0,245,255,.04);
+  }
+  .card-back-face:hover { border-color: rgba(0,245,255,.7); box-shadow: 0 0 20px rgba(0,245,255,.3); }
+  .card-back-symbol {
+    font-size: 2.2rem;
+    filter: grayscale(1) brightness(.5);
+  }
+  .card-back-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: .55rem;
+    letter-spacing: 2px;
+    color: rgba(0,245,255,.4);
+    text-transform: uppercase;
+  }
+
+  .card-front-face {
+    transform: rotateY(180deg);
+    border-radius: 14px;
+    border: 1.5px solid transparent;
+    padding: 10px 8px;
+    text-align: center;
+    overflow: hidden;
+  }
+  .card-front-face .card-cat {
+    font-family: 'Orbitron', sans-serif;
+    font-size: .5rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: .7;
+  }
+  .card-front-face .card-emoji { font-size: 2rem; margin-bottom: 6px; }
+  .card-front-face .card-value {
+    font-weight: 600;
+    font-size: .75rem;
+    line-height: 1.3;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  .card-front-face .card-line {
+    font-size: .64rem;
+    opacity: .75;
+    margin-top: 4px;
+    line-height: 1.4;
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  /* category colours */
+  .cat-job .card-front-face    { background: linear-gradient(135deg,#0a1f3a,#0d3060); border-color: #4488ff; color:#aad4ff; }
+  .cat-salary .card-front-face { background: linear-gradient(135deg,#1a2a00,#2e4d00); border-color: #88cc00; color:#ccff66; }
+  .cat-home .card-front-face   { background: linear-gradient(135deg,#2a1000,#4d2000); border-color: #ff8800; color:#ffd080; }
+  .cat-car .card-front-face    { background: linear-gradient(135deg,#200020,#3d0060); border-color: #cc44ff; color:#ee88ff; }
+  .cat-city .card-front-face   { background: linear-gradient(135deg,#001a1a,#003333); border-color: #00ddcc; color:#80ffee; }
+  .cat-partner .card-front-face{ background: linear-gradient(135deg,#2a0018,#550030); border-color: #ff4488; color:#ffaacc; }
+  .cat-pet .card-front-face    { background: linear-gradient(135deg,#1a1000,#3d2800); border-color: #ffaa00; color:#ffe080; }
+  .cat-power .card-front-face  { background: linear-gradient(135deg,#0a001a,#1e0040); border-color: #aa44ff; color:#ddbbff; }
+  .cat-hobby .card-front-face  { background: linear-gradient(135deg,#001a0a,#003320); border-color: #00ff88; color:#88ffcc; }
+
+  /* ── RESULT SCREEN ── */
+  .result-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    letter-spacing: 3px;
+    text-align: center;
+    background: linear-gradient(90deg, var(--gold), #ff8c00, var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 8px rgba(255,200,0,.5));
+    margin-bottom: 6px;
+  }
+  .result-name {
+    font-size: .8rem;
+    color: rgba(180,230,255,.5);
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .result-grid {
+    display: flex; flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+  .result-card {
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 18px 16px;
+    width: 130px;
+    text-align: center;
+    animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+  @keyframes popIn { from { opacity:0; transform: scale(.6) translateY(20px); } to { opacity:1; transform: scale(1) translateY(0); } }
+  .result-card:nth-child(1) { animation-delay:.1s; }
+  .result-card:nth-child(2) { animation-delay:.2s; }
+  .result-card:nth-child(3) { animation-delay:.3s; }
+  .result-card:nth-child(4) { animation-delay:.4s; }
+  .result-card:nth-child(5) { animation-delay:.5s; }
+  .result-card:nth-child(6) { animation-delay:.6s; }
+  .result-card:nth-child(7) { animation-delay:.7s; }
+  .result-card:nth-child(8) { animation-delay:.8s; }
+  .result-card:nth-child(9) { animation-delay:.9s; }
+  .rc-emoji { font-size: 2.2rem; margin-bottom: 6px; }
+  .rc-cat {
+    font-family: 'Orbitron', sans-serif;
+    font-size: .5rem;
+    letter-spacing: 2px;
+    opacity: .5;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .rc-val { font-weight: 600; font-size: .82rem; line-height: 1.3; }
+  .rc-sub { font-size: .68rem; opacity: .6; margin-top: 3px; line-height: 1.3; }
+
+  .verdict-box {
+    background: linear-gradient(135deg, rgba(0,30,60,.8), rgba(20,0,50,.8));
+    border: 1px solid rgba(255,200,0,.3);
+    border-radius: 16px;
+    padding: 20px 24px;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 24px;
+    animation: fadeIn .8s 1s both;
+  }
+  .verdict-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: .6rem;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .verdict-text {
+    font-size: .95rem;
+    line-height: 1.6;
+    color: rgba(220,240,255,.9);
+  }
+  .happiness {
+    margin-top: 10px;
+    font-size: 1.6rem;
+    letter-spacing: 4px;
+  }
+
+  /* ── BUTTON ── */
+  .btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: .8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 14px 36px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all .2s;
+    margin-top: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #0055aa, #0033cc);
+    color: var(--neon);
+    box-shadow: 0 0 20px rgba(0,100,255,.4), inset 0 1px 0 rgba(255,255,255,.1);
+  }
+  .btn-primary:hover { box-shadow: 0 0 35px rgba(0,150,255,.6); transform: translateY(-2px); }
+  .btn-gold {
+    background: linear-gradient(135deg, #8b6000, #d4900a);
+    color: #fff8e0;
+    box-shadow: 0 0 20px rgba(200,130,0,.4);
+  }
+  .btn-gold:hover { box-shadow: 0 0 35px rgba(220,150,0,.7); transform: translateY(-2px); }
+
+  /* confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 8px; height: 8px;
+    top: -10px;
+    border-radius: 2px;
+    animation: confettiFall linear forwards;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  footer {
+    position: relative; z-index: 2;
+    text-align: center;
+    padding: 20px;
+    font-size: .7rem;
+    color: rgba(100,150,180,.3);
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+
+<header>
+  <h1>FUTURE SCANNER 3000</h1>
+  <p>Scan · Discover · Become</p>
+</header>
+
+<!-- ══════════════ SCREEN 1: SCAN ══════════════ -->
+<div class="screen active" id="screen-scan">
+  <div id="scanBox">
+    <p class="scan-instruction">Hold your finger on the scanner<br>to reveal your <strong>destiny</strong></p>
+    <p class="scan-hold-hint" id="holdHint" style="font-size:.75rem;color:rgba(0,245,255,.5);letter-spacing:1px;margin-top:-10px;">⟵ Press and hold ⟶</p>
+    <div class="fingerprint-wrap" id="fpWrap">
+      <div class="fp-ring"></div>
+      <div class="fp-ring"></div>
+      <div class="fp-ring"></div>
+      <div class="fp-hold-ring" id="holdRing">
+        <svg viewBox="0 0 212 212"><circle cx="106" cy="106" r="103" id="holdCircle"/></svg>
+      </div>
+      <div class="fp-icon" id="fpBtn">
+        <!-- Fingerprint SVG -->
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50,15 C30,15 14,30 14,50 C14,65 22,78 34,85"/>
+          <path d="M50,22 C34,22 21,35 21,50 C21,62 28,72 39,78"/>
+          <path d="M50,29 C38,29 28,39 28,50 C28,59 34,67 43,72"/>
+          <path d="M50,36 C41,36 35,43 35,50 C35,56 39,62 46,66"/>
+          <path d="M50,43 C45,43 42,47 42,50 C42,53 44,56 48,58"/>
+          <path d="M50,15 C70,15 86,30 86,50 C86,65 78,78 66,85"/>
+          <path d="M50,22 C66,22 79,35 79,50 C79,62 72,72 61,78"/>
+          <path d="M50,29 C62,29 72,39 72,50 C72,59 66,67 57,72"/>
+          <path d="M50,36 C59,36 65,43 65,50 C65,56 61,62 54,66"/>
+          <path d="M50,43 C55,43 58,47 58,50 C58,53 56,56 52,58"/>
+          <path d="M50,15 L50,10"/>
+          <path d="M34,85 Q50,95 66,85"/>
+        </svg>
+      </div>
+    </div>
+    <div class="scan-bar-wrap" id="scanBarWrap">
+      <div class="scan-bar" id="scanBar"></div>
+    </div>
+    <div class="scan-status" id="scanStatus"></div>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 2: CARDS ══════════════ -->
+<div class="screen" id="screen-cards">
+  <p class="pick-title">🔮 Your destiny is in the cards</p>
+  <p class="pick-sub">Click each card to reveal your future</p>
+  <div class="cards-grid" id="cardsGrid"></div>
+  <button class="btn btn-primary" id="btnResult" style="display:none;margin-top:28px" onclick="showResult()">✨ See My Future</button>
+</div>
+
+<!-- ══════════════ SCREEN 3: RESULT ══════════════ -->
+<div class="screen" id="screen-result">
+  <div class="result-title">⚡ YOUR FUTURE IS SET ⚡</div>
+  <div class="result-name" id="resultName"></div>
+  <div class="result-grid" id="resultGrid"></div>
+  <div class="verdict-box">
+    <div class="verdict-label">🤖 AI Life Assessment</div>
+    <div class="verdict-text" id="verdictText"></div>
+    <div class="happiness" id="happinessStars"></div>
+  </div>
+  <button class="btn btn-gold" onclick="restart()">🔄 Scan Again</button>
+</div>
+
+<footer>Future Scanner 3000 · For Entertainment Only · Class of 2026</footer>
+
+<script>
+// ── DATA ──
+// weight: common=10, uncommon=5, rare=2, epic=1, legendary=0.3
+const FUTURES = {
+  job: {
+    label: "JOB",
+    emoji: "💼",
+    options: [
+      { val: "Software Developer", line: "Fixing bugs nobody else understands", emoji: "💻", rarity: "common", weight: 10 },
+      { val: "Teacher", line: "Shaping minds, one class at a time", emoji: "📚", rarity: "common", weight: 10 },
+      { val: "Nurse", line: "The backbone of every hospital", emoji: "🏥", rarity: "common", weight: 10 },
+      { val: "Marketing Manager", line: "Making people want things they didn't need", emoji: "📊", rarity: "common", weight: 10 },
+      { val: "Electrician", line: "Keeping the lights on for everyone", emoji: "⚡", rarity: "common", weight: 10 },
+      { val: "Graphic Designer", line: "Your fonts spark controversy online", emoji: "🎨", rarity: "common", weight: 9 },
+      { val: "Journalist", line: "The truth is out there — you find it", emoji: "📰", rarity: "common", weight: 9 },
+      { val: "Chef", line: "Michelin stars are within reach", emoji: "👨‍🍳", rarity: "uncommon", weight: 5 },
+      { val: "Architect", line: "Buildings that make people stop and stare", emoji: "🏛️", rarity: "uncommon", weight: 5 },
+      { val: "Pilot", line: "The world is your runway", emoji: "✈️", rarity: "uncommon", weight: 5 },
+      { val: "Scientist", line: "Nobel Prize? It's on the shortlist", emoji: "🔬", rarity: "uncommon", weight: 5 },
+      { val: "Lawyer", line: "Objection sustained. Every time.", emoji: "⚖️", rarity: "uncommon", weight: 5 },
+      { val: "YouTuber", line: "10M subscribers and counting", emoji: "📹", rarity: "rare", weight: 2 },
+      { val: "Pro Gamer", line: "The whole world watches you play", emoji: "🎮", rarity: "rare", weight: 2 },
+      { val: "Astronaut", line: "Earth looks beautiful from up here", emoji: "🚀", rarity: "rare", weight: 2 },
+      { val: "Robot Engineer", line: "Building the future, one servo at a time", emoji: "🤖", rarity: "rare", weight: 2 },
+      { val: "Surgeon", line: "Steady hands, sharper mind", emoji: "🩻", rarity: "rare", weight: 2 },
+      { val: "Superhero", line: "Secret identity required", emoji: "🦸", rarity: "epic", weight: 1 },
+      { val: "Time Traveler", line: "You've already met your future self", emoji: "⏰", rarity: "epic", weight: 1 },
+      { val: "President", line: "The nation needs you", emoji: "🏛️", rarity: "legendary", weight: 0.3 },
+    ]
+  },
+  salary: {
+    label: "SALARY",
+    emoji: "💰",
+    options: [
+      { val: "$1,800 / month", line: "Ramen is a lifestyle, not a choice", emoji: "😬", rarity: "common", weight: 10 },
+      { val: "$2,800 / month", line: "Rent paid, groceries covered — barely", emoji: "😐", rarity: "common", weight: 10 },
+      { val: "$4,200 / month", line: "Comfortable. Brunch is now a habit.", emoji: "🙂", rarity: "common", weight: 10 },
+      { val: "$6,500 / month", line: "Savings account actually growing", emoji: "😊", rarity: "common", weight: 9 },
+      { val: "$9,000 / month", line: "Living the good life", emoji: "😎", rarity: "uncommon", weight: 5 },
+      { val: "$15,000 / month", line: "Business class feels normal now", emoji: "🤑", rarity: "uncommon", weight: 5 },
+      { val: "$30,000 / month", line: "Your accountant has an accountant", emoji: "💸", rarity: "rare", weight: 2 },
+      { val: "$100K / month", line: "Private jet? Already booked.", emoji: "✈️", rarity: "rare", weight: 2 },
+      { val: "Paid in pizza", line: "At least it tastes good…", emoji: "🍕", rarity: "uncommon", weight: 4 },
+      { val: "$1M / year", line: "You hire people just to count it", emoji: "💎", rarity: "epic", weight: 1 },
+      { val: "$1M / month", line: "Governments are jealous of your budget", emoji: "👑", rarity: "legendary", weight: 0.3 },
+    ]
+  },
+  home: {
+    label: "HOME",
+    emoji: "🏡",
+    options: [
+      { val: "Studio Apartment", line: "Cozy, compact, and perfectly yours", emoji: "🛏️", rarity: "common", weight: 10 },
+      { val: "Shared Flat", line: "Roommates who eat your food, but still", emoji: "🏠", rarity: "common", weight: 10 },
+      { val: "Cozy Apartment", line: "Great coffee shop right downstairs", emoji: "🏢", rarity: "common", weight: 10 },
+      { val: "Suburban House", line: "White picket fence and a real garden", emoji: "🏡", rarity: "common", weight: 9 },
+      { val: "Countryside Cottage", line: "Fresh air, slow mornings, zero commute", emoji: "🌿", rarity: "common", weight: 8 },
+      { val: "Modern Townhouse", line: "Three floors of stylish city living", emoji: "🏘️", rarity: "uncommon", weight: 5 },
+      { val: "Penthouse", line: "City views and a rooftop pool", emoji: "🌆", rarity: "rare", weight: 2 },
+      { val: "Lakeside Villa", line: "Morning coffee with a lake view", emoji: "🌊", rarity: "rare", weight: 2 },
+      { val: "Treehouse", line: "Squirrels are your neighbors", emoji: "🌳", rarity: "uncommon", weight: 4 },
+      { val: "Castle", line: "You own a drawbridge. Yes, really.", emoji: "🏰", rarity: "epic", weight: 1 },
+      { val: "Private Island", line: "Food delivery arrives by helicopter", emoji: "🏝️", rarity: "legendary", weight: 0.3 },
+      { val: "Space Station", line: "Zero gravity cooking is trickier than expected", emoji: "🛸", rarity: "legendary", weight: 0.3 },
+    ]
+  },
+  car: {
+    label: "VEHICLE",
+    emoji: "🚗",
+    options: [
+      { val: "City Bike", line: "Great cardio, zero fuel costs", emoji: "🚲", rarity: "common", weight: 10 },
+      { val: "Old Scooter", line: "Gets you there — eventually", emoji: "🛵", rarity: "common", weight: 10 },
+      { val: "Toyota Corolla", line: "Reliable since the dawn of time", emoji: "🚗", rarity: "common", weight: 10 },
+      { val: "Honda Civic", line: "Sensible and secretly fun to drive", emoji: "🚘", rarity: "common", weight: 10 },
+      { val: "Tesla Model 3", line: "Autopilot on. Hands barely needed.", emoji: "🔋", rarity: "uncommon", weight: 5 },
+      { val: "Tesla Cybertruck", line: "Bulletproof and divisive. You love it.", emoji: "🛻", rarity: "uncommon", weight: 4 },
+      { val: "BMW M3", line: "Weekend roads were made for this", emoji: "🏁", rarity: "uncommon", weight: 4 },
+      { val: "Porsche 911", line: "Classic. Timeless. Effortlessly fast.", emoji: "🏎️", rarity: "rare", weight: 2 },
+      { val: "Ferrari SF90", line: "Red, 986hp, and absolutely unhinged", emoji: "🔴", rarity: "rare", weight: 2 },
+      { val: "Lamborghini Urus", line: "Speed limits feel like suggestions", emoji: "⚡", rarity: "rare", weight: 2 },
+      { val: "Private Jet", line: "Why drive when you can fly?", emoji: "✈️", rarity: "epic", weight: 1 },
+      { val: "Teleporter", line: "0 km/h, instant everywhere", emoji: "🌀", rarity: "legendary", weight: 0.3 },
+    ]
+  },
+  city: {
+    label: "CITY",
+    emoji: "🌍",
+    options: [
+      { val: "Paris, France", line: "Croissants every single morning", emoji: "🥐", rarity: "common", weight: 8 },
+      { val: "New York, USA", line: "The city that never, ever sleeps", emoji: "🗽", rarity: "common", weight: 8 },
+      { val: "Tokyo, Japan", line: "Anime, ramen, and neon everywhere", emoji: "🍣", rarity: "common", weight: 8 },
+      { val: "London, UK", line: "Tea time is non-negotiable", emoji: "🫖", rarity: "common", weight: 8 },
+      { val: "Berlin, Germany", line: "Techno, art, and brutal efficiency", emoji: "🎵", rarity: "common", weight: 8 },
+      { val: "Barcelona, Spain", line: "Late dinners, beach mornings, always warm", emoji: "🌞", rarity: "common", weight: 8 },
+      { val: "Toronto, Canada", line: "Polite, multicultural, relentlessly hockey", emoji: "🍁", rarity: "common", weight: 7 },
+      { val: "Dubai, UAE", line: "Gold ATMs are genuinely real here", emoji: "🌇", rarity: "uncommon", weight: 4 },
+      { val: "Sydney, Australia", line: "Kangaroos spotted two streets over", emoji: "🦘", rarity: "uncommon", weight: 4 },
+      { val: "Singapore", line: "Cleanest city, fastest internet, best hawker food", emoji: "🏙️", rarity: "uncommon", weight: 4 },
+      { val: "Moon City", line: "Only 384,000 km from home", emoji: "🌕", rarity: "epic", weight: 1 },
+      { val: "Mars Colony", line: "Pioneer of the Red Planet", emoji: "🔴", rarity: "legendary", weight: 0.3 },
+    ]
+  },
+  partner: {
+    label: "PARTNER",
+    emoji: "💑",
+    options: [
+      { val: "Childhood Friend", line: "You knew each other before it got complicated", emoji: "🧡", rarity: "common", weight: 10 },
+      { val: "Coworker", line: "Office romance that actually worked out", emoji: "💼", rarity: "common", weight: 10 },
+      { val: "Met on an App", line: "Skeptical at first. Never been happier.", emoji: "📱", rarity: "common", weight: 10 },
+      { val: "Met Traveling", line: "Random city, right moment, perfect person", emoji: "🌍", rarity: "common", weight: 9 },
+      { val: "Musician", line: "They write songs about you. Good ones.", emoji: "🎸", rarity: "uncommon", weight: 5 },
+      { val: "Doctor", line: "Free medical advice and terrible work hours", emoji: "🩺", rarity: "uncommon", weight: 5 },
+      { val: "Chef", line: "Every meal is a Michelin-level experience", emoji: "👨‍🍳", rarity: "uncommon", weight: 5 },
+      { val: "Adventurer", line: "Every weekend is a new expedition", emoji: "🧗", rarity: "uncommon", weight: 4 },
+      { val: "Secret Celebrity", line: "Paparazzi follow you now too", emoji: "🌟", rarity: "rare", weight: 2 },
+      { val: "Astronaut", line: "Long-distance — like, really long distance", emoji: "🚀", rarity: "rare", weight: 2 },
+      { val: "Time Traveler", line: "They already know how it ends. Good.", emoji: "⏳", rarity: "epic", weight: 1 },
+      { val: "Solo Forever", line: "Total freedom. Playlist for one.", emoji: "🎧", rarity: "uncommon", weight: 5 },
+    ]
+  },
+  pet: {
+    label: "PET",
+    emoji: "🐾",
+    options: [
+      { val: "Golden Retriever", line: "Loves everyone. Especially strangers.", emoji: "🐕", rarity: "common", weight: 10 },
+      { val: "Tabby Cat", line: "Knocks things off tables on purpose", emoji: "🐱", rarity: "common", weight: 10 },
+      { val: "Hamster", line: "Runs 10km a night going absolutely nowhere", emoji: "🐹", rarity: "common", weight: 10 },
+      { val: "Rabbit", line: "Soft, fast, and chews through cables", emoji: "🐇", rarity: "common", weight: 9 },
+      { val: "Parrot", line: "Knows your WiFi password. Tells everyone.", emoji: "🦜", rarity: "common", weight: 8 },
+      { val: "Axolotl", line: "Perpetually smiling, eternally weird", emoji: "🦎", rarity: "uncommon", weight: 5 },
+      { val: "Bearded Dragon", line: "Sits on your shoulder judging everyone", emoji: "🦖", rarity: "uncommon", weight: 5 },
+      { val: "Capybara", line: "Zen master of the animal kingdom", emoji: "🦫", rarity: "rare", weight: 2 },
+      { val: "Fennec Fox", line: "Huge ears, huge personality, huge energy", emoji: "🦊", rarity: "rare", weight: 2 },
+      { val: "Talking Fox", line: "It finally answered the question", emoji: "🦊", rarity: "epic", weight: 1 },
+      { val: "Mini Dragon", line: "Doubles as a barbecue lighter", emoji: "🐉", rarity: "legendary", weight: 0.3 },
+    ]
+  },
+  power: {
+    label: "SUPER-POWER",
+    emoji: "⚡",
+    options: [
+      { val: "Photographic Memory", line: "You studied once and still remember it all", emoji: "🧠", rarity: "common", weight: 10 },
+      { val: "Never Need Sleep", line: "25 productive hours a day", emoji: "😴", rarity: "common", weight: 10 },
+      { val: "Speak Any Language", line: "Fluent in everything, instantly", emoji: "🗣️", rarity: "common", weight: 9 },
+      { val: "Never Get Lost", line: "Internal GPS, always accurate", emoji: "🧭", rarity: "common", weight: 9 },
+      { val: "Instant Healing", line: "Injuries last about 30 seconds", emoji: "💊", rarity: "uncommon", weight: 5 },
+      { val: "Talk to Animals", line: "Your cat finally explains itself", emoji: "🐾", rarity: "uncommon", weight: 5 },
+      { val: "Control the Weather", line: "Sunshine guaranteed every weekend", emoji: "🌤️", rarity: "uncommon", weight: 5 },
+      { val: "Telekinesis", line: "The remote control obeys you now", emoji: "🧲", rarity: "rare", weight: 2 },
+      { val: "Invisibility", line: "Boring meetings simply don't happen", emoji: "👻", rarity: "rare", weight: 2 },
+      { val: "Flight", line: "Traffic jams are someone else's problem", emoji: "🦅", rarity: "rare", weight: 2 },
+      { val: "Stop Time", line: "5 extra minutes of sleep, every morning", emoji: "⏱️", rarity: "epic", weight: 1 },
+      { val: "Mind Reading", line: "You know the answer before they speak", emoji: "🔮", rarity: "epic", weight: 1 },
+      { val: "Omniscience", line: "Every answer. Every question. Always.", emoji: "🌌", rarity: "legendary", weight: 0.3 },
+    ]
+  },
+  hobby: {
+    label: "HOBBY",
+    emoji: "🎯",
+    options: [
+      { val: "Hiking", line: "Legs aching, views absolutely worth it", emoji: "🥾", rarity: "common", weight: 10 },
+      { val: "Cooking", line: "YouTube tutorials and zero fear", emoji: "🍳", rarity: "common", weight: 10 },
+      { val: "Reading", line: "One book a week, no exceptions", emoji: "📖", rarity: "common", weight: 10 },
+      { val: "Gaming", line: "One more match. Always one more.", emoji: "🎮", rarity: "common", weight: 10 },
+      { val: "Running", line: "5am starts. No one understands you.", emoji: "🏃", rarity: "common", weight: 9 },
+      { val: "Photography", line: "Everything is a potential shot", emoji: "📷", rarity: "common", weight: 9 },
+      { val: "Playing Guitar", line: "Wonderwall is the gateway drug", emoji: "🎸", rarity: "common", weight: 8 },
+      { val: "Painting", line: "Canvases everywhere. Brushes in everything.", emoji: "🖌️", rarity: "uncommon", weight: 5 },
+      { val: "Rock Climbing", line: "Fear of heights? Conquered it.", emoji: "🧗", rarity: "uncommon", weight: 5 },
+      { val: "Astronomy", line: "You know every constellation by name", emoji: "🔭", rarity: "uncommon", weight: 4 },
+      { val: "Urban Beekeeping", line: "City honey, loyal colony, zero stings", emoji: "🐝", rarity: "rare", weight: 2 },
+      { val: "Quantum Dancing", line: "You exist on multiple dancefloors at once", emoji: "🕺", rarity: "epic", weight: 1 },
+      { val: "Mars Gardening", line: "Tomatoes grow differently up there", emoji: "🌱", rarity: "legendary", weight: 0.3 },
+    ]
+  }
+};
+
+const VERDICTS = [
+  "Not bad at all! Your future looks bright and full of unexpected surprises.",
+  "Wow. This combination is either genius or chaotic. Probably both.",
+  "Scientists predict this is the most interesting life in human history.",
+  "Your future self is already proud of who you're becoming.",
+  "This future is so good, even your enemies will be jealous.",
+  "Statistically speaking, you will be absolutely fine. Mostly.",
+  "Future analysts rated this destiny: 9.4 / 10. Impressive.",
+  "Warning: this future may cause extreme happiness and general awesomeness.",
+  "Your destiny has been certified by the Future Bureau. Congrats!",
+  "Plot twist: your future is better than you imagined. Way better.",
+];
+
+// ── STATE ──
+let chosen = {};
+let flippedCount = 0;
+const CATEGORIES = ['job','salary','home','car','city','partner','pet','power','hobby'];
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+// ── HOLD-TO-SCAN LOGIC ──
+let scanning = false;
+let holdTimer = null;
+let holdProgress = 0;
+let holdRAF = null;
+const HOLD_DURATION = 2000; // ms to hold
+
+const fpBtn = document.getElementById('fpBtn');
+const holdCircle = document.getElementById('holdCircle');
+const CIRCUMFERENCE = 2 * Math.PI * 103; // ~647
+
+function startHold(e) {
+  if (scanning) return;
+  e.preventDefault();
+  holdProgress = 0;
+  fpBtn.classList.add('holding');
+  document.getElementById('holdHint').style.opacity = '0';
+  const startTime = performance.now();
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    holdProgress = Math.min(elapsed / HOLD_DURATION, 1);
+    const offset = CIRCUMFERENCE * (1 - holdProgress);
+    holdCircle.style.strokeDashoffset = offset;
+
+    // status text
+    const status = document.getElementById('scanStatus');
+    if (holdProgress < 0.3) status.textContent = 'Hold still...';
+    else if (holdProgress < 0.6) status.textContent = 'Reading biometrics...';
+    else if (holdProgress < 0.9) status.textContent = 'Analyzing destiny...';
+    else status.textContent = 'Almost done...';
+
+    if (holdProgress < 1) {
+      holdRAF = requestAnimationFrame(animate);
+    } else {
+      cancelAnimationFrame(holdRAF);
+      fpBtn.classList.remove('holding');
+      scanning = true;
+      startScan();
+    }
+  }
+  holdRAF = requestAnimationFrame(animate);
+}
+
+function cancelHold() {
+  if (scanning) return;
+  cancelAnimationFrame(holdRAF);
+  holdProgress = 0;
+  holdCircle.style.strokeDashoffset = CIRCUMFERENCE;
+  fpBtn.classList.remove('holding');
+  document.getElementById('scanStatus').textContent = '';
+  document.getElementById('holdHint').style.opacity = '1';
+}
+
+fpBtn.addEventListener('mousedown', startHold);
+fpBtn.addEventListener('touchstart', startHold, { passive: false });
+fpBtn.addEventListener('mouseup', cancelHold);
+fpBtn.addEventListener('mouseleave', cancelHold);
+fpBtn.addEventListener('touchend', cancelHold);
+fpBtn.addEventListener('touchcancel', cancelHold);
+
+function startScan() {
+  const wrap = document.getElementById('scanBarWrap');
+  const bar = document.getElementById('scanBar');
+  const status = document.getElementById('scanStatus');
+  wrap.style.display = 'block';
+
+  const steps = [
+    [20, 'Initializing...'],
+    [40, 'Reading biometrics...'],
+    [58, 'Checking destiny database...'],
+    [72, 'Analyzing timeline...'],
+    [85, 'Cross-referencing future events...'],
+    [95, 'Finalizing...'],
+    [100, 'SCAN COMPLETE ✓'],
+  ];
+
+  let i = 0;
+  function step() {
+    if (i >= steps.length) { setTimeout(() => showCards(), 600); return; }
+    const [pct, msg] = steps[i++];
+    bar.style.width = pct + '%';
+    status.textContent = msg;
+    setTimeout(step, i === steps.length ? 500 : 300);
+  }
+  step();
+}
+
+// ── CARDS ──
+function showCards() {
+  document.getElementById('screen-scan').classList.remove('active');
+  const cs = document.getElementById('screen-cards');
+  cs.classList.add('active');
+
+  // assign random values
+  CATEGORIES.forEach(cat => {
+    chosen[cat] = pick(FUTURES[cat].options);
+  });
+
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = '';
+  flippedCount = 0;
+
+  CATEGORIES.forEach((cat, idx) => {
+    const data = FUTURES[cat];
+    const item = chosen[cat];
+    const wrap = document.createElement('div');
+    wrap.className = `card-wrap cat-${cat}`;
+    wrap.dataset.idx = idx;
+    wrap.innerHTML = `
+      <div class="card-inner">
+        <div class="card-face card-back-face">
+          <div class="card-back-symbol">${data.emoji}</div>
+          <div class="card-back-label">${data.label}</div>
+        </div>
+        <div class="card-face card-front-face">
+          <div class="card-cat">${data.label}</div>
+          <div class="card-emoji">${item.emoji}</div>
+          <div class="card-value">${item.val}</div>
+          <div class="card-line">${item.line}</div>
+        </div>
+      </div>`;
+    wrap.addEventListener('click', () => flipCard(wrap, cat));
+    grid.appendChild(wrap);
+  });
+}
+
+function flipCard(wrap, cat) {
+  if (wrap.classList.contains('flipped') || wrap.classList.contains('disabled')) return;
+  wrap.classList.add('flipped','disabled');
+  flippedCount++;
+  if (flippedCount === CATEGORIES.length) {
+    document.getElementById('btnResult').style.display = 'inline-block';
+  }
+}
+
+// ── RESULT ──
+function showResult() {
+  document.getElementById('screen-cards').classList.remove('active');
+  const rs = document.getElementById('screen-result');
+  rs.classList.add('active');
+
+  document.getElementById('resultName').textContent = '— Your personal future report —';
+
+  const grid = document.getElementById('resultGrid');
+  grid.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const data = FUTURES[cat];
+    const item = chosen[cat];
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.innerHTML = `
+      <div class="rc-emoji">${item.emoji}</div>
+      <div class="rc-cat">${data.label}</div>
+      <div class="rc-val">${item.val}</div>
+      <div class="rc-sub">${item.line}</div>`;
+    grid.appendChild(card);
+  });
+
+  document.getElementById('verdictText').textContent = pick(VERDICTS);
+
+  // happiness stars based on "quality" of outcome
+  const luxury = [chosen.salary.val, chosen.home.val, chosen.car.val]
+    .join('').match(/million|island|penthouse|castle|ferrari|lambo|jet|100K|1M/i);
+  document.getElementById('happinessStars').textContent = luxury ? '⭐⭐⭐⭐⭐' : '⭐⭐⭐⭐';
+
+  launchConfetti();
+}
+
+// ── CONFETTI ──
+function launchConfetti() {
+  const colors = ['#00f5ff','#ff00ff','#ffd700','#00ff88','#ff4488','#88aaff'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left:${Math.random()*100}vw;
+      background:${pick(colors)};
+      animation-duration:${2+Math.random()*3}s;
+      animation-delay:${Math.random()*.8}s;
+      transform:rotate(${Math.random()*360}deg);
+      border-radius:${Math.random()>.5?'50%':'2px'};
+    `;
+    document.body.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  }
+}
+
+// ── RESTART ──
+function restart() {
+  chosen = {}; flippedCount = 0; scanning = false;
+  holdProgress = 0;
+  holdCircle.style.strokeDashoffset = CIRCUMFERENCE;
+  cancelAnimationFrame(holdRAF);
+  document.getElementById('scanBar').style.width = '0%';
+  document.getElementById('scanStatus').textContent = '';
+  document.getElementById('scanBarWrap').style.display = 'none';
+  document.getElementById('btnResult').style.display = 'none';
+  document.getElementById('holdHint').style.opacity = '1';
+  document.getElementById('screen-result').classList.remove('active');
+  document.getElementById('screen-scan').classList.add('active');
+}
+</script>
+</body>
+</html>
