@@ -687,7 +687,16 @@ let chosen = {};
 let flippedCount = 0;
 const CATEGORIES = ['job','salary','home','car','city','partner','pet','power','hobby'];
 
-function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+// ✅ CORRECTION — respecte les poids
+function pick(arr) {
+  const total = arr.reduce((sum, item) => sum + item.weight, 0);
+  let rand = Math.random() * total;
+  for (const item of arr) {
+    rand -= item.weight;
+    if (rand <= 0) return item;
+  }
+  return arr[arr.length - 1];
+}
 
 // ── HOLD-TO-SCAN LOGIC ──
 let scanning = false;
