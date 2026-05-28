@@ -43,11 +43,44 @@
     background-size: 200px 200px;
   }
 
+  /* ── LANGUAGE SELECTOR ── */
+  .lang-bar {
+    position: relative; z-index: 10;
+    display: flex;
+    gap: 6px;
+    padding: 12px 20px 0;
+    align-self: flex-end;
+  }
+  .lang-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: .6rem;
+    letter-spacing: 1px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,245,255,.25);
+    background: rgba(0,245,255,.04);
+    color: rgba(0,245,255,.5);
+    cursor: pointer;
+    transition: all .2s;
+    user-select: none;
+  }
+  .lang-btn:hover {
+    border-color: rgba(0,245,255,.6);
+    color: var(--neon);
+    background: rgba(0,245,255,.08);
+  }
+  .lang-btn.active {
+    border-color: var(--neon);
+    color: var(--neon);
+    background: rgba(0,245,255,.12);
+    box-shadow: 0 0 10px rgba(0,245,255,.3);
+  }
+
   /* ── HEADER ── */
   header {
     position: relative; z-index: 2;
     text-align: center;
-    padding: 28px 20px 10px;
+    padding: 16px 20px 10px;
   }
   header h1 {
     font-family: 'Orbitron', sans-serif;
@@ -112,7 +145,6 @@
     0%,100% { box-shadow: 0 0 0 0 rgba(0,245,255,.4); }
     50% { box-shadow: 0 0 30px 10px rgba(0,245,255,.1); }
   }
-  /* hold-to-scan ring */
   .fp-icon {
     position: relative; z-index: 1;
     width: 200px; height: 200px;
@@ -157,7 +189,6 @@
   .fp-icon svg { width: 110px; height: 110px; }
   .fp-icon svg path { stroke: var(--neon); stroke-width: 1.5; fill: none; }
 
-  /* scan progress */
   .scan-bar-wrap {
     width: 220px; height: 6px;
     background: rgba(0,245,255,.1);
@@ -203,7 +234,6 @@
     width: 100%;
   }
 
-  /* card flip */
   .card-wrap {
     perspective: 800px;
     width: 110px; height: 150px;
@@ -233,10 +263,7 @@
     box-shadow: 0 4px 24px rgba(0,0,0,.5), inset 0 0 20px rgba(0,245,255,.04);
   }
   .card-back-face:hover { border-color: rgba(0,245,255,.7); box-shadow: 0 0 20px rgba(0,245,255,.3); }
-  .card-back-symbol {
-    font-size: 2.2rem;
-    filter: grayscale(1) brightness(.5);
-  }
+  .card-back-symbol { font-size: 2.2rem; filter: grayscale(1) brightness(.5); }
   .card-back-label {
     font-family: 'Orbitron', sans-serif;
     font-size: .55rem;
@@ -278,7 +305,6 @@
     hyphens: auto;
   }
 
-  /* category colours */
   .cat-job .card-front-face    { background: linear-gradient(135deg,#0a1f3a,#0d3060); border-color: #4488ff; color:#aad4ff; }
   .cat-salary .card-front-face { background: linear-gradient(135deg,#1a2a00,#2e4d00); border-color: #88cc00; color:#ccff66; }
   .cat-home .card-front-face   { background: linear-gradient(135deg,#2a1000,#4d2000); border-color: #ff8800; color:#ffd080; }
@@ -401,7 +427,6 @@
   }
   .btn-gold:hover { box-shadow: 0 0 35px rgba(220,150,0,.7); transform: translateY(-2px); }
 
-  /* confetti */
   .confetti-piece {
     position: fixed;
     width: 8px; height: 8px;
@@ -428,16 +453,24 @@
 <body>
 <div class="stars"></div>
 
+<!-- ── LANGUAGE BAR ── -->
+<div class="lang-bar">
+  <button class="lang-btn active" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" onclick="setLang('fr')">FR</button>
+  <button class="lang-btn" onclick="setLang('de')">DE</button>
+  <button class="lang-btn" onclick="setLang('es')">ES</button>
+</div>
+
 <header>
   <h1>FUTURE SCANNER</h1>
-  <p>Scan · Discover · Become</p>
+  <p data-i18n="tagline">Scan · Discover · Become</p>
 </header>
 
 <!-- ══════════════ SCREEN 1: SCAN ══════════════ -->
 <div class="screen active" id="screen-scan">
   <div id="scanBox">
-    <p class="scan-instruction">Hold your finger on the scanner<br>to reveal your <strong>destiny</strong></p>
-    <p class="scan-hold-hint" id="holdHint" style="font-size:.75rem;color:rgba(0,245,255,.5);letter-spacing:1px;margin-top:-10px;">⟵ Press and hold ⟶</p>
+    <p class="scan-instruction" data-i18n="scanInstruction">Hold your finger on the scanner<br>to reveal your <strong>destiny</strong></p>
+    <p class="scan-hold-hint" id="holdHint" style="font-size:.75rem;color:rgba(0,245,255,.5);letter-spacing:1px;margin-top:-10px;" data-i18n="holdHint">⟵ Press and hold ⟶</p>
     <div class="fingerprint-wrap" id="fpWrap">
       <div class="fp-ring"></div>
       <div class="fp-ring"></div>
@@ -446,7 +479,6 @@
         <svg viewBox="0 0 212 212"><circle cx="106" cy="106" r="103" id="holdCircle"/></svg>
       </div>
       <div class="fp-icon" id="fpBtn">
-        <!-- Fingerprint SVG -->
         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
           <path d="M50,15 C30,15 14,30 14,50 C14,65 22,78 34,85"/>
           <path d="M50,22 C34,22 21,35 21,50 C21,62 28,72 39,78"/>
@@ -472,243 +504,829 @@
 
 <!-- ══════════════ SCREEN 2: CARDS ══════════════ -->
 <div class="screen" id="screen-cards">
-  <p class="pick-title">🔮 Your destiny is in the cards</p>
-  <p class="pick-sub">Click each card to reveal your future</p>
+  <p class="pick-title" data-i18n="pickTitle">🔮 Your destiny is in the cards</p>
+  <p class="pick-sub" data-i18n="pickSub">Click each card to reveal your future</p>
   <div class="cards-grid" id="cardsGrid"></div>
-  <button class="btn btn-primary" id="btnResult" style="display:none;margin-top:28px" onclick="showResult()">✨ See My Future</button>
+  <button class="btn btn-primary" id="btnResult" style="display:none;margin-top:28px" onclick="showResult()" data-i18n="seeMyFuture">✨ See My Future</button>
 </div>
 
 <!-- ══════════════ SCREEN 3: RESULT ══════════════ -->
 <div class="screen" id="screen-result">
-  <div class="result-title">⚡ YOUR FUTURE IS SET ⚡</div>
+  <div class="result-title" data-i18n="resultTitle">⚡ YOUR FUTURE IS SET ⚡</div>
   <div class="result-name" id="resultName"></div>
   <div class="result-grid" id="resultGrid"></div>
   <div class="verdict-box">
-    <div class="verdict-label">🤖 AI Life Assessment</div>
+    <div class="verdict-label" data-i18n="verdictLabel">🤖 AI Life Assessment</div>
     <div class="verdict-text" id="verdictText"></div>
     <div class="happiness" id="happinessStars"></div>
   </div>
-  <button class="btn btn-gold" onclick="restart()">🔄 Scan Again</button>
+  <button class="btn btn-gold" onclick="restart()" data-i18n="scanAgain">🔄 Scan Again</button>
 </div>
 
-<footer>Future Scanner 3000 · For Entertainment Only · Class of 2026</footer>
+<footer data-i18n="footer">Future Scanner 3000 · For Entertainment Only · Class of 2026</footer>
 
 <script>
-// ── DATA ──
-// weight: common=10, uncommon=5, rare=2, epic=1, legendary=0.3
-const FUTURES = {
-  job: {
-    label: "JOB",
-    emoji: "💼",
-    options: [
-      { val: "Software Developer", line: "Fixing bugs nobody else understands", emoji: "💻", rarity: "common", weight: 10 },
-      { val: "Teacher", line: "Shaping minds, one class at a time", emoji: "📚", rarity: "common", weight: 10 },
-      { val: "Nurse", line: "The backbone of every hospital", emoji: "🏥", rarity: "common", weight: 10 },
-      { val: "Marketing Manager", line: "Making people want things they didn't need", emoji: "📊", rarity: "common", weight: 10 },
-      { val: "Electrician", line: "Keeping the lights on for everyone", emoji: "⚡", rarity: "common", weight: 10 },
-      { val: "Graphic Designer", line: "Your fonts spark controversy online", emoji: "🎨", rarity: "common", weight: 9 },
-      { val: "Journalist", line: "The truth is out there — you find it", emoji: "📰", rarity: "common", weight: 9 },
-      { val: "Chef", line: "Michelin stars are within reach", emoji: "👨‍🍳", rarity: "uncommon", weight: 5 },
-      { val: "Architect", line: "Buildings that make people stop and stare", emoji: "🏛️", rarity: "uncommon", weight: 5 },
-      { val: "Pilot", line: "The world is your runway", emoji: "✈️", rarity: "uncommon", weight: 5 },
-      { val: "Scientist", line: "Nobel Prize? It's on the shortlist", emoji: "🔬", rarity: "uncommon", weight: 5 },
-      { val: "Lawyer", line: "Objection sustained. Every time.", emoji: "⚖️", rarity: "uncommon", weight: 2.5 },
-      { val: "Vet", line: "You love pets !.", emoji: "🐶", rarity: "uncommon", weight: 2.5 },
-      { val: "YouTuber", line: "10M subscribers and counting", emoji: "📹", rarity: "rare", weight: 2 },
-      { val: "Pro Gamer", line: "The whole world watches you play", emoji: "🎮", rarity: "rare", weight: 2 },
-      { val: "Astronaut", line: "Earth looks beautiful from up here", emoji: "🚀", rarity: "rare", weight: 2 },
-      { val: "Robot Engineer", line: "Building the future, one servo at a time", emoji: "🤖", rarity: "rare", weight: 2 },
-      { val: "Surgeon", line: "Steady hands, sharper mind", emoji: "🩻", rarity: "rare", weight: 2 },
-      { val: "Superhero", line: "Secret identity required", emoji: "🦸", rarity: "epic", weight: 1 },
-      { val: "Time Traveler", line: "You've already met your future self", emoji: "⏰", rarity: "epic", weight: 1 },
-      { val: "President", line: "The nation needs you", emoji: "🏛️", rarity: "legendary", weight: 0.3 },
-    ]
+// ══════════════════════════════════════════
+// ── TRANSLATIONS ──
+// ══════════════════════════════════════════
+const TRANSLATIONS = {
+  en: {
+    tagline: "Scan · Discover · Become",
+    scanInstruction: "Hold your finger on the scanner<br>to reveal your <strong>destiny</strong>",
+    holdHint: "⟵ Press and hold ⟶",
+    pickTitle: "🔮 Your destiny is in the cards",
+    pickSub: "Click each card to reveal your future",
+    seeMyFuture: "✨ See My Future",
+    resultTitle: "⚡ YOUR FUTURE IS SET ⚡",
+    resultSubtitle: "— Your personal future report —",
+    verdictLabel: "🤖 AI Life Assessment",
+    scanAgain: "🔄 Scan Again",
+    footer: "Future Scanner 3000 · For Entertainment Only · Class of 2026",
+    scanSteps: [
+      [20, 'Initializing...'],
+      [40, 'Reading biometrics...'],
+      [58, 'Checking destiny database...'],
+      [72, 'Analyzing timeline...'],
+      [85, 'Cross-referencing future events...'],
+      [95, 'Finalizing...'],
+      [100, 'SCAN COMPLETE ✓'],
+    ],
+    holdSteps: ['Hold still...', 'Reading biometrics...', 'Analyzing destiny...', 'Almost done...'],
+    categories: {
+      job:     { label: "JOB",       emoji: "💼" },
+      salary:  { label: "SALARY",    emoji: "💰" },
+      home:    { label: "HOME",      emoji: "🏡" },
+      car:     { label: "VEHICLE",   emoji: "🚗" },
+      city:    { label: "CITY",      emoji: "🌍" },
+      partner: { label: "PARTNER",   emoji: "💑" },
+      pet:     { label: "PET",       emoji: "🐾" },
+      power:   { label: "SUPER-POWER", emoji: "⚡" },
+      hobby:   { label: "HOBBY",     emoji: "🎯" },
+    },
+    verdicts: [
+      "Not bad at all! Your future looks bright and full of unexpected surprises.",
+      "Wow. This combination is either genius or chaotic. Probably both.",
+      "Scientists predict this is the most interesting life in human history.",
+      "Your future self is already proud of who you're becoming.",
+      "This future is so good, even your enemies will be jealous.",
+      "Statistically speaking, you will be absolutely fine. Mostly.",
+      "Future analysts rated this destiny: 9.4 / 10. Impressive.",
+      "Warning: this future may cause extreme happiness and general awesomeness.",
+      "Your destiny has been certified by the Future Bureau. Congrats!",
+      "Plot twist: your future is better than you imagined. Way better.",
+    ],
+    futures: {
+      job: [
+        { val: "Software Developer", line: "Fixing bugs nobody else understands", emoji: "💻", weight: 10 },
+        { val: "Teacher", line: "Shaping minds, one class at a time", emoji: "📚", weight: 10 },
+        { val: "Nurse", line: "The backbone of every hospital", emoji: "🏥", weight: 10 },
+        { val: "Marketing Manager", line: "Making people want things they didn't need", emoji: "📊", weight: 10 },
+        { val: "Electrician", line: "Keeping the lights on for everyone", emoji: "⚡", weight: 10 },
+        { val: "Graphic Designer", line: "Your fonts spark controversy online", emoji: "🎨", weight: 9 },
+        { val: "Journalist", line: "The truth is out there — you find it", emoji: "📰", weight: 9 },
+        { val: "Chef", line: "Michelin stars are within reach", emoji: "👨‍🍳", weight: 5 },
+        { val: "Architect", line: "Buildings that make people stop and stare", emoji: "🏛️", weight: 5 },
+        { val: "Pilot", line: "The world is your runway", emoji: "✈️", weight: 5 },
+        { val: "Scientist", line: "Nobel Prize? It's on the shortlist", emoji: "🔬", weight: 5 },
+        { val: "Lawyer", line: "Objection sustained. Every time.", emoji: "⚖️", weight: 2.5 },
+        { val: "Vet", line: "You love pets.", emoji: "🐶", weight: 2.5 },
+        { val: "YouTuber", line: "10M subscribers and counting", emoji: "📹", weight: 2 },
+        { val: "Pro Gamer", line: "The whole world watches you play", emoji: "🎮", weight: 2 },
+        { val: "Astronaut", line: "Earth looks beautiful from up here", emoji: "🚀", weight: 2 },
+        { val: "Robot Engineer", line: "Building the future, one servo at a time", emoji: "🤖", weight: 2 },
+        { val: "Surgeon", line: "Steady hands, sharper mind", emoji: "🩻", weight: 2 },
+        { val: "Superhero", line: "Secret identity required", emoji: "🦸", weight: 1 },
+        { val: "Time Traveler", line: "You've already met your future self", emoji: "⏰", weight: 1 },
+        { val: "President", line: "The nation needs you", emoji: "🏛️", weight: 0.3 },
+      ],
+      salary: [
+        { val: "$1,800 / month", line: "Ramen is a lifestyle, not a choice", emoji: "😬", weight: 10 },
+        { val: "$2,800 / month", line: "Rent paid, groceries covered — barely", emoji: "😐", weight: 10 },
+        { val: "$4,200 / month", line: "Comfortable. Brunch is now a habit.", emoji: "🙂", weight: 10 },
+        { val: "$6,500 / month", line: "Savings account actually growing", emoji: "😊", weight: 9 },
+        { val: "$9,000 / month", line: "Living the good life", emoji: "😎", weight: 5 },
+        { val: "$15,000 / month", line: "Business class feels normal now", emoji: "🤑", weight: 5 },
+        { val: "$30,000 / month", line: "Your accountant has an accountant", emoji: "💸", weight: 2 },
+        { val: "$100K / month", line: "Private jet? Already booked.", emoji: "✈️", weight: 2 },
+        { val: "Paid in pizza", line: "At least it tastes good…", emoji: "🍕", weight: 4 },
+        { val: "$1M / year", line: "You hire people just to count it", emoji: "💎", weight: 1 },
+        { val: "$1M / month", line: "Governments are jealous of your budget", emoji: "👑", weight: 0.3 },
+      ],
+      home: [
+        { val: "Studio Apartment", line: "Cozy, compact, and perfectly yours", emoji: "🛏️", weight: 10 },
+        { val: "Shared Flat", line: "Roommates who eat your food, but still", emoji: "🏠", weight: 10 },
+        { val: "Cozy Apartment", line: "Great coffee shop right downstairs", emoji: "🏢", weight: 10 },
+        { val: "Suburban House", line: "White picket fence and a real garden", emoji: "🏡", weight: 9 },
+        { val: "Countryside Cottage", line: "Fresh air, slow mornings, zero commute", emoji: "🌿", weight: 8 },
+        { val: "Modern Townhouse", line: "Three floors of stylish city living", emoji: "🏘️", weight: 5 },
+        { val: "Penthouse", line: "City views and a rooftop pool", emoji: "🌆", weight: 2 },
+        { val: "Lakeside Villa", line: "Morning coffee with a lake view", emoji: "🌊", weight: 2 },
+        { val: "Treehouse", line: "Squirrels are your neighbors", emoji: "🌳", weight: 4 },
+        { val: "Castle", line: "You own a drawbridge. Yes, really.", emoji: "🏰", weight: 1 },
+        { val: "Private Island", line: "Food delivery arrives by helicopter", emoji: "🏝️", weight: 0.3 },
+        { val: "Space Station", line: "Zero gravity cooking is trickier than expected", emoji: "🛸", weight: 0.3 },
+      ],
+      car: [
+        { val: "City Bike", line: "Great cardio, zero fuel costs", emoji: "🚲", weight: 10 },
+        { val: "Old Scooter", line: "Gets you there — eventually", emoji: "🛵", weight: 10 },
+        { val: "Toyota Corolla", line: "Reliable since the dawn of time", emoji: "🚗", weight: 10 },
+        { val: "Honda Civic", line: "Sensible and secretly fun to drive", emoji: "🚘", weight: 10 },
+        { val: "Tesla Model 3", line: "Autopilot on. Hands barely needed.", emoji: "🔋", weight: 5 },
+        { val: "Tesla Cybertruck", line: "Bulletproof and divisive. You love it.", emoji: "🛻", weight: 4 },
+        { val: "BMW M3", line: "Weekend roads were made for this", emoji: "🏁", weight: 4 },
+        { val: "Porsche 911", line: "Classic. Timeless. Effortlessly fast.", emoji: "🏎️", weight: 2 },
+        { val: "Ferrari SF90", line: "Red, 986hp, and absolutely unhinged", emoji: "🔴", weight: 2 },
+        { val: "Lamborghini Urus", line: "Speed limits feel like suggestions", emoji: "⚡", weight: 2 },
+        { val: "Private Jet", line: "Why drive when you can fly?", emoji: "✈️", weight: 1 },
+        { val: "Teleporter", line: "0 km/h, instant everywhere", emoji: "🌀", weight: 0.3 },
+      ],
+      city: [
+        { val: "Paris, France", line: "Croissants every single morning", emoji: "🥐", weight: 8 },
+        { val: "New York, USA", line: "The city that never, ever sleeps", emoji: "🗽", weight: 8 },
+        { val: "Tokyo, Japan", line: "Anime, ramen, and neon everywhere", emoji: "🍣", weight: 8 },
+        { val: "London, UK", line: "Tea time is non-negotiable", emoji: "🫖", weight: 8 },
+        { val: "Berlin, Germany", line: "Techno, art, and brutal efficiency", emoji: "🎵", weight: 8 },
+        { val: "Barcelona, Spain", line: "Late dinners, beach mornings, always warm", emoji: "🌞", weight: 8 },
+        { val: "Toronto, Canada", line: "Polite, multicultural, relentlessly hockey", emoji: "🍁", weight: 7 },
+        { val: "Dubai, UAE", line: "Gold ATMs are genuinely real here", emoji: "🌇", weight: 4 },
+        { val: "Sydney, Australia", line: "Kangaroos spotted two streets over", emoji: "🦘", weight: 4 },
+        { val: "Singapore", line: "Cleanest city, fastest internet, best hawker food", emoji: "🏙️", weight: 4 },
+        { val: "Moon City", line: "Only 384,000 km from home", emoji: "🌕", weight: 1 },
+        { val: "Mars Colony", line: "Pioneer of the Red Planet", emoji: "🔴", weight: 0.3 },
+      ],
+      partner: [
+        { val: "Childhood Friend", line: "You knew each other before it got complicated", emoji: "🧡", weight: 10 },
+        { val: "Coworker", line: "Office romance that actually worked out", emoji: "💼", weight: 10 },
+        { val: "Met on an App", line: "Skeptical at first. Never been happier.", emoji: "📱", weight: 10 },
+        { val: "Met Traveling", line: "Random city, right moment, perfect person", emoji: "🌍", weight: 9 },
+        { val: "Musician", line: "They write songs about you. Good ones.", emoji: "🎸", weight: 5 },
+        { val: "Doctor", line: "Free medical advice and terrible work hours", emoji: "🩺", weight: 5 },
+        { val: "Chef", line: "Every meal is a Michelin-level experience", emoji: "👨‍🍳", weight: 5 },
+        { val: "Adventurer", line: "Every weekend is a new expedition", emoji: "🧗", weight: 4 },
+        { val: "Secret Celebrity", line: "Paparazzi follow you now too", emoji: "🌟", weight: 2 },
+        { val: "Astronaut", line: "Long-distance — like, really long distance", emoji: "🚀", weight: 2 },
+        { val: "Time Traveler", line: "They already know how it ends. Good.", emoji: "⏳", weight: 1 },
+        { val: "Solo Forever", line: "Total freedom. Playlist for one.", emoji: "🎧", weight: 5 },
+      ],
+      pet: [
+        { val: "Golden Retriever", line: "Loves everyone. Especially strangers.", emoji: "🐕", weight: 10 },
+        { val: "Tabby Cat", line: "Knocks things off tables on purpose", emoji: "🐱", weight: 10 },
+        { val: "Hamster", line: "Runs 10km a night going absolutely nowhere", emoji: "🐹", weight: 10 },
+        { val: "Rabbit", line: "Soft, fast, and chews through cables", emoji: "🐇", weight: 9 },
+        { val: "Parrot", line: "Knows your WiFi password. Tells everyone.", emoji: "🦜", weight: 8 },
+        { val: "Axolotl", line: "Perpetually smiling, eternally weird", emoji: "🦎", weight: 5 },
+        { val: "Bearded Dragon", line: "Sits on your shoulder judging everyone", emoji: "🦖", weight: 5 },
+        { val: "Capybara", line: "Zen master of the animal kingdom", emoji: "🦫", weight: 2 },
+        { val: "Fennec Fox", line: "Huge ears, huge personality, huge energy", emoji: "🦊", weight: 2 },
+        { val: "Talking Fox", line: "It finally answered the question", emoji: "🦊", weight: 1 },
+        { val: "Mini Dragon", line: "Doubles as a barbecue lighter", emoji: "🐉", weight: 0.3 },
+      ],
+      power: [
+        { val: "Photographic Memory", line: "You studied once and still remember it all", emoji: "🧠", weight: 10 },
+        { val: "Never Need Sleep", line: "25 productive hours a day", emoji: "😴", weight: 10 },
+        { val: "Speak Any Language", line: "Fluent in everything, instantly", emoji: "🗣️", weight: 9 },
+        { val: "Never Get Lost", line: "Internal GPS, always accurate", emoji: "🧭", weight: 9 },
+        { val: "Instant Healing", line: "Injuries last about 30 seconds", emoji: "💊", weight: 5 },
+        { val: "Talk to Animals", line: "Your cat finally explains itself", emoji: "🐾", weight: 5 },
+        { val: "Control the Weather", line: "Sunshine guaranteed every weekend", emoji: "🌤️", weight: 5 },
+        { val: "Telekinesis", line: "The remote control obeys you now", emoji: "🧲", weight: 2 },
+        { val: "Invisibility", line: "Boring meetings simply don't happen", emoji: "👻", weight: 2 },
+        { val: "Flight", line: "Traffic jams are someone else's problem", emoji: "🦅", weight: 2 },
+        { val: "Stop Time", line: "5 extra minutes of sleep, every morning", emoji: "⏱️", weight: 1 },
+        { val: "Mind Reading", line: "You know the answer before they speak", emoji: "🔮", weight: 1 },
+        { val: "Omniscience", line: "Every answer. Every question. Always.", emoji: "🌌", weight: 0.3 },
+      ],
+      hobby: [
+        { val: "Hiking", line: "Legs aching, views absolutely worth it", emoji: "🥾", weight: 10 },
+        { val: "Cooking", line: "YouTube tutorials and zero fear", emoji: "🍳", weight: 10 },
+        { val: "Reading", line: "One book a week, no exceptions", emoji: "📖", weight: 10 },
+        { val: "Gaming", line: "One more match. Always one more.", emoji: "🎮", weight: 10 },
+        { val: "Running", line: "5am starts. No one understands you.", emoji: "🏃", weight: 9 },
+        { val: "Photography", line: "Everything is a potential shot", emoji: "📷", weight: 9 },
+        { val: "Playing Guitar", line: "Wonderwall is the gateway drug", emoji: "🎸", weight: 8 },
+        { val: "Painting", line: "Canvases everywhere. Brushes in everything.", emoji: "🖌️", weight: 5 },
+        { val: "Rock Climbing", line: "Fear of heights? Conquered it.", emoji: "🧗", weight: 5 },
+        { val: "Astronomy", line: "You know every constellation by name", emoji: "🔭", weight: 4 },
+        { val: "Urban Beekeeping", line: "City honey, loyal colony, zero stings", emoji: "🐝", weight: 2 },
+        { val: "Quantum Dancing", line: "You exist on multiple dancefloors at once", emoji: "🕺", weight: 1 },
+        { val: "Mars Gardening", line: "Tomatoes grow differently up there", emoji: "🌱", weight: 0.3 },
+      ],
+    }
   },
-  salary: {
-    label: "SALARY",
-    emoji: "💰",
-    options: [
-      { val: "$1,800 / month", line: "Ramen is a lifestyle, not a choice", emoji: "😬", rarity: "common", weight: 10 },
-      { val: "$2,800 / month", line: "Rent paid, groceries covered — barely", emoji: "😐", rarity: "common", weight: 10 },
-      { val: "$4,200 / month", line: "Comfortable. Brunch is now a habit.", emoji: "🙂", rarity: "common", weight: 10 },
-      { val: "$6,500 / month", line: "Savings account actually growing", emoji: "😊", rarity: "common", weight: 9 },
-      { val: "$9,000 / month", line: "Living the good life", emoji: "😎", rarity: "uncommon", weight: 5 },
-      { val: "$15,000 / month", line: "Business class feels normal now", emoji: "🤑", rarity: "uncommon", weight: 5 },
-      { val: "$30,000 / month", line: "Your accountant has an accountant", emoji: "💸", rarity: "rare", weight: 2 },
-      { val: "$100K / month", line: "Private jet? Already booked.", emoji: "✈️", rarity: "rare", weight: 2 },
-      { val: "Paid in pizza", line: "At least it tastes good…", emoji: "🍕", rarity: "uncommon", weight: 4 },
-      { val: "$1M / year", line: "You hire people just to count it", emoji: "💎", rarity: "epic", weight: 1 },
-      { val: "$1M / month", line: "Governments are jealous of your budget", emoji: "👑", rarity: "legendary", weight: 0.3 },
-    ]
+
+  fr: {
+    tagline: "Scanner · Découvrir · Devenir",
+    scanInstruction: "Maintiens ton doigt sur le scanner<br>pour révéler ton <strong>destin</strong>",
+    holdHint: "⟵ Appuie et maintiens ⟶",
+    pickTitle: "🔮 Ton destin est dans les cartes",
+    pickSub: "Clique sur chaque carte pour révéler ton avenir",
+    seeMyFuture: "✨ Voir Mon Futur",
+    resultTitle: "⚡ TON FUTUR EST SCELLÉ ⚡",
+    resultSubtitle: "— Ton rapport futur personnalisé —",
+    verdictLabel: "🤖 Bilan de Vie par IA",
+    scanAgain: "🔄 Scanner à nouveau",
+    footer: "Future Scanner 3000 · Pour se divertir uniquement · Promo 2026",
+    scanSteps: [
+      [20, 'Initialisation...'],
+      [40, 'Lecture biométrique...'],
+      [58, 'Consultation de la base de données...'],
+      [72, 'Analyse de la chronologie...'],
+      [85, 'Recoupement des événements futurs...'],
+      [95, 'Finalisation...'],
+      [100, 'SCAN TERMINÉ ✓'],
+    ],
+    holdSteps: ['Ne bouge pas...', 'Lecture biométrique...', 'Analyse du destin...', 'Presque fini...'],
+    categories: {
+      job:     { label: "MÉTIER",      emoji: "💼" },
+      salary:  { label: "SALAIRE",     emoji: "💰" },
+      home:    { label: "LOGEMENT",    emoji: "🏡" },
+      car:     { label: "VÉHICULE",    emoji: "🚗" },
+      city:    { label: "VILLE",       emoji: "🌍" },
+      partner: { label: "PARTENAIRE",  emoji: "💑" },
+      pet:     { label: "ANIMAL",      emoji: "🐾" },
+      power:   { label: "SUPER-POUVOIR", emoji: "⚡" },
+      hobby:   { label: "LOISIR",      emoji: "🎯" },
+    },
+    verdicts: [
+      "Pas mal du tout ! Ton avenir s'annonce brillant et plein de surprises.",
+      "Wow. Cette combinaison est soit du génie, soit du chaos. Probablement les deux.",
+      "Les scientifiques prédisent que c'est la vie la plus intéressante de l'histoire humaine.",
+      "Ton futur toi est déjà fier de qui tu deviens.",
+      "Cet avenir est tellement bon que même tes ennemis seront jaloux.",
+      "Statistiquement parlant, tu vas très bien t'en sortir. En grande partie.",
+      "Les analystes du futur ont noté ce destin : 9,4 / 10. Impressionnant.",
+      "Attention : ce futur peut provoquer un bonheur extrême et une awesomitude générale.",
+      "Ton destin a été certifié par le Bureau du Futur. Félicitations !",
+      "Coup de théâtre : ton futur est meilleur que tu ne l'imaginais. Bien meilleur.",
+    ],
+    futures: {
+      job: [
+        { val: "Développeur Logiciel", line: "Tu corriges des bugs que personne d'autre ne comprend", emoji: "💻", weight: 10 },
+        { val: "Enseignant(e)", line: "Façonner les esprits, un cours à la fois", emoji: "📚", weight: 10 },
+        { val: "Infirmier(ère)", line: "Le pilier de chaque hôpital", emoji: "🏥", weight: 10 },
+        { val: "Responsable Marketing", line: "Tu fais vouloir aux gens ce dont ils n'avaient pas besoin", emoji: "📊", weight: 10 },
+        { val: "Électricien(ne)", line: "Garder la lumière allumée pour tout le monde", emoji: "⚡", weight: 10 },
+        { val: "Graphiste", line: "Tes polices font polémique sur internet", emoji: "🎨", weight: 9 },
+        { val: "Journaliste", line: "La vérité est là quelque part — tu la trouves", emoji: "📰", weight: 9 },
+        { val: "Chef Cuisinier", line: "Les étoiles Michelin sont à portée de main", emoji: "👨‍🍳", weight: 5 },
+        { val: "Architecte", line: "Des bâtiments qui font s'arrêter les gens", emoji: "🏛️", weight: 5 },
+        { val: "Pilote", line: "Le monde est ta piste d'atterrissage", emoji: "✈️", weight: 5 },
+        { val: "Scientifique", line: "Nobel ? C'est sur la liste.", emoji: "🔬", weight: 5 },
+        { val: "Avocat(e)", line: "Objection retenue. À chaque fois.", emoji: "⚖️", weight: 2.5 },
+        { val: "Vétérinaire", line: "Tu adores les animaux.", emoji: "🐶", weight: 2.5 },
+        { val: "YouTubeur(euse)", line: "10M d'abonnés et ça continue", emoji: "📹", weight: 2 },
+        { val: "Pro Gamer", line: "Le monde entier te regarde jouer", emoji: "🎮", weight: 2 },
+        { val: "Astronaute", line: "La Terre est magnifique vue d'ici", emoji: "🚀", weight: 2 },
+        { val: "Ingénieur Robotique", line: "Construire l'avenir, servo par servo", emoji: "🤖", weight: 2 },
+        { val: "Chirurgien(ne)", line: "Mains stables, esprit encore plus affûté", emoji: "🩻", weight: 2 },
+        { val: "Super-Héros", line: "Identité secrète obligatoire", emoji: "🦸", weight: 1 },
+        { val: "Voyageur Temporel", line: "Tu as déjà rencontré ton futur toi", emoji: "⏰", weight: 1 },
+        { val: "Président(e)", line: "La nation a besoin de toi", emoji: "🏛️", weight: 0.3 },
+      ],
+      salary: [
+        { val: "1 800€ / mois", line: "Les pâtes, c'est un mode de vie", emoji: "😬", weight: 10 },
+        { val: "2 800€ / mois", line: "Loyer payé, courses couvertes — de justesse", emoji: "😐", weight: 10 },
+        { val: "4 200€ / mois", line: "À l'aise. Le brunch est devenu une habitude.", emoji: "🙂", weight: 10 },
+        { val: "6 500€ / mois", line: "L'épargne progresse vraiment", emoji: "😊", weight: 9 },
+        { val: "9 000€ / mois", line: "La belle vie", emoji: "😎", weight: 5 },
+        { val: "15 000€ / mois", line: "La business class te semble normale maintenant", emoji: "🤑", weight: 5 },
+        { val: "30 000€ / mois", line: "Ton comptable a un comptable", emoji: "💸", weight: 2 },
+        { val: "100K€ / mois", line: "Jet privé ? Déjà réservé.", emoji: "✈️", weight: 2 },
+        { val: "Payé en pizza", line: "Au moins, c'est bon…", emoji: "🍕", weight: 4 },
+        { val: "1M€ / an", line: "Tu embauches des gens juste pour le compter", emoji: "💎", weight: 1 },
+        { val: "1M€ / mois", line: "Les gouvernements sont jaloux de ton budget", emoji: "👑", weight: 0.3 },
+      ],
+      home: [
+        { val: "Studio", line: "Cosy, compact, et parfaitement à toi", emoji: "🛏️", weight: 10 },
+        { val: "Colocation", line: "Les colos mangent ta nourriture, mais bon", emoji: "🏠", weight: 10 },
+        { val: "Appartement Cosy", line: "Super café juste en bas", emoji: "🏢", weight: 10 },
+        { val: "Maison Pavillonnaire", line: "Jardin et clôture blanche au programme", emoji: "🏡", weight: 9 },
+        { val: "Chalet à la Campagne", line: "Air frais, matins lents, zéro trajet", emoji: "🌿", weight: 8 },
+        { val: "Maison de Ville Moderne", line: "Trois étages de vie urbaine stylée", emoji: "🏘️", weight: 5 },
+        { val: "Penthouse", line: "Vue sur la ville et piscine sur le toit", emoji: "🌆", weight: 2 },
+        { val: "Villa au Bord du Lac", line: "Café du matin avec vue sur le lac", emoji: "🌊", weight: 2 },
+        { val: "Cabane dans les Arbres", line: "Les écureuils sont tes voisins", emoji: "🌳", weight: 4 },
+        { val: "Château", line: "Tu as un pont-levis. Vraiment.", emoji: "🏰", weight: 1 },
+        { val: "Île Privée", line: "La livraison arrive en hélicoptère", emoji: "🏝️", weight: 0.3 },
+        { val: "Station Spatiale", line: "Cuisiner en apesanteur, c'est compliqué", emoji: "🛸", weight: 0.3 },
+      ],
+      car: [
+        { val: "Vélo de Ville", line: "Cardio gratuit, zéro carburant", emoji: "🚲", weight: 10 },
+        { val: "Vieux Scooter", line: "Ça arrive… éventuellement", emoji: "🛵", weight: 10 },
+        { val: "Toyota Corolla", line: "Fiable depuis la nuit des temps", emoji: "🚗", weight: 10 },
+        { val: "Honda Civic", line: "Raisonnable et secrètement fun à conduire", emoji: "🚘", weight: 10 },
+        { val: "Tesla Model 3", line: "Autopilote activé. Les mains se reposent.", emoji: "🔋", weight: 5 },
+        { val: "Tesla Cybertruck", line: "Pare-balles et clivant. Tu adores.", emoji: "🛻", weight: 4 },
+        { val: "BMW M3", line: "Les routes du week-end étaient faites pour ça", emoji: "🏁", weight: 4 },
+        { val: "Porsche 911", line: "Classique. Intemporelle. Effortlessly rapide.", emoji: "🏎️", weight: 2 },
+        { val: "Ferrari SF90", line: "Rouge, 986ch, et totalement dingue", emoji: "🔴", weight: 2 },
+        { val: "Lamborghini Urus", line: "Les limitations de vitesse, c'est pour les autres", emoji: "⚡", weight: 2 },
+        { val: "Jet Privé", line: "Pourquoi conduire quand on peut voler ?", emoji: "✈️", weight: 1 },
+        { val: "Téléporteur", line: "0 km/h, partout instantanément", emoji: "🌀", weight: 0.3 },
+      ],
+      city: [
+        { val: "Paris, France", line: "Croissants chaque matin sans exception", emoji: "🥐", weight: 8 },
+        { val: "New York, USA", line: "La ville qui ne dort jamais, vraiment jamais", emoji: "🗽", weight: 8 },
+        { val: "Tokyo, Japon", line: "Anime, ramen, et néons partout", emoji: "🍣", weight: 8 },
+        { val: "Londres, UK", line: "L'heure du thé est sacrée", emoji: "🫖", weight: 8 },
+        { val: "Berlin, Allemagne", line: "Techno, art, et efficacité brutale", emoji: "🎵", weight: 8 },
+        { val: "Barcelone, Espagne", line: "Dîners tardifs, matins à la plage, toujours chaud", emoji: "🌞", weight: 8 },
+        { val: "Toronto, Canada", line: "Poli, multiculturel, obsédé de hockey", emoji: "🍁", weight: 7 },
+        { val: "Dubaï, EAU", line: "Les distributeurs d'or existent vraiment ici", emoji: "🌇", weight: 4 },
+        { val: "Sydney, Australie", line: "Des kangourous à deux rues de là", emoji: "🦘", weight: 4 },
+        { val: "Singapour", line: "La ville la plus propre, internet le plus rapide", emoji: "🏙️", weight: 4 },
+        { val: "Cité Lunaire", line: "À seulement 384 000 km de chez soi", emoji: "🌕", weight: 1 },
+        { val: "Colonie sur Mars", line: "Pionnier de la Planète Rouge", emoji: "🔴", weight: 0.3 },
+      ],
+      partner: [
+        { val: "Ami(e) d'Enfance", line: "Vous vous connaissiez avant que ça devienne compliqué", emoji: "🧡", weight: 10 },
+        { val: "Collègue", line: "La romance au bureau qui a vraiment marché", emoji: "💼", weight: 10 },
+        { val: "Rencontré(e) sur une App", line: "Sceptique au début. Plus heureux que jamais.", emoji: "📱", weight: 10 },
+        { val: "Rencontré(e) en Voyage", line: "Ville au hasard, bon moment, personne parfaite", emoji: "🌍", weight: 9 },
+        { val: "Musicien(ne)", line: "Il/elle écrit des chansons sur toi. De belles.", emoji: "🎸", weight: 5 },
+        { val: "Médecin", line: "Conseils médicaux gratuits et horaires catastrophiques", emoji: "🩺", weight: 5 },
+        { val: "Chef Cuisinier", line: "Chaque repas est une expérience Michelin", emoji: "👨‍🍳", weight: 5 },
+        { val: "Aventurier(ère)", line: "Chaque week-end est une nouvelle expédition", emoji: "🧗", weight: 4 },
+        { val: "Célébrité Secrète", line: "Les paparazzi te suivent aussi maintenant", emoji: "🌟", weight: 2 },
+        { val: "Astronaute", line: "Longue distance — vraiment très longue distance", emoji: "🚀", weight: 2 },
+        { val: "Voyageur Temporel", line: "Il/elle sait déjà comment ça finit. Bien.", emoji: "⏳", weight: 1 },
+        { val: "Solo pour Toujours", line: "Liberté totale. Playlist pour un(e).", emoji: "🎧", weight: 5 },
+      ],
+      pet: [
+        { val: "Golden Retriever", line: "Aime tout le monde. Surtout les inconnus.", emoji: "🐕", weight: 10 },
+        { val: "Chat Tigré", line: "Fait tomber les trucs exprès", emoji: "🐱", weight: 10 },
+        { val: "Hamster", line: "Court 10 km la nuit sans aller nulle part", emoji: "🐹", weight: 10 },
+        { val: "Lapin", line: "Doux, rapide, et ronge les câbles", emoji: "🐇", weight: 9 },
+        { val: "Perroquet", line: "Connaît ton mot de passe WiFi. Le dit à tout le monde.", emoji: "🦜", weight: 8 },
+        { val: "Axolotl", line: "Sourire permanent, étrangeté éternelle", emoji: "🦎", weight: 5 },
+        { val: "Dragon Barbu", line: "Se pose sur ton épaule et juge tout le monde", emoji: "🦖", weight: 5 },
+        { val: "Capybara", line: "Maître zen du règne animal", emoji: "🦫", weight: 2 },
+        { val: "Renard Fennec", line: "Grandes oreilles, grande personnalité, grande énergie", emoji: "🦊", weight: 2 },
+        { val: "Renard Parlant", line: "Il a enfin répondu à la question", emoji: "🦊", weight: 1 },
+        { val: "Mini Dragon", line: "Fait aussi office d'allume-barbecue", emoji: "🐉", weight: 0.3 },
+      ],
+      power: [
+        { val: "Mémoire Photographique", line: "Tu as étudié une fois et tu t'en souviens encore", emoji: "🧠", weight: 10 },
+        { val: "Ne Jamais Dormir", line: "25 heures productives par jour", emoji: "😴", weight: 10 },
+        { val: "Parler Toutes les Langues", line: "Courant dans tout, instantanément", emoji: "🗣️", weight: 9 },
+        { val: "Jamais Se Perdre", line: "GPS interne, toujours précis", emoji: "🧭", weight: 9 },
+        { val: "Guérison Instantanée", line: "Les blessures durent environ 30 secondes", emoji: "💊", weight: 5 },
+        { val: "Parler aux Animaux", line: "Ton chat s'explique enfin", emoji: "🐾", weight: 5 },
+        { val: "Contrôler la Météo", line: "Soleil garanti chaque week-end", emoji: "🌤️", weight: 5 },
+        { val: "Télékinésie", line: "La télécommande t'obéit maintenant", emoji: "🧲", weight: 2 },
+        { val: "Invisibilité", line: "Les réunions ennuyeuses n'existent plus", emoji: "👻", weight: 2 },
+        { val: "Vol", line: "Les embouteillages, c'est pour les autres", emoji: "🦅", weight: 2 },
+        { val: "Arrêter le Temps", line: "5 minutes de sommeil en plus chaque matin", emoji: "⏱️", weight: 1 },
+        { val: "Lire dans les Pensées", line: "Tu connais la réponse avant qu'ils parlent", emoji: "🔮", weight: 1 },
+        { val: "Omniscience", line: "Toutes les réponses. Toutes les questions. Toujours.", emoji: "🌌", weight: 0.3 },
+      ],
+      hobby: [
+        { val: "Randonnée", line: "Jambes en feu, paysages qui valent chaque pas", emoji: "🥾", weight: 10 },
+        { val: "Cuisine", line: "Tutoriels YouTube et zéro peur", emoji: "🍳", weight: 10 },
+        { val: "Lecture", line: "Un livre par semaine, sans exception", emoji: "📖", weight: 10 },
+        { val: "Gaming", line: "Encore une partie. Toujours encore une.", emoji: "🎮", weight: 10 },
+        { val: "Course à Pied", line: "Départ à 5h du mat. Personne ne comprend.", emoji: "🏃", weight: 9 },
+        { val: "Photographie", line: "Tout est un potentiel cliché", emoji: "📷", weight: 9 },
+        { val: "Guitare", line: "Wonderwall, c'est la porte d'entrée", emoji: "🎸", weight: 8 },
+        { val: "Peinture", line: "Des toiles partout. Des pinceaux dans tout.", emoji: "🖌️", weight: 5 },
+        { val: "Escalade", line: "La peur du vide ? Vaincue.", emoji: "🧗", weight: 5 },
+        { val: "Astronomie", line: "Tu connais chaque constellation par son nom", emoji: "🔭", weight: 4 },
+        { val: "Apiculture Urbaine", line: "Miel de ville, colonie fidèle, zéro piqûre", emoji: "🐝", weight: 2 },
+        { val: "Danse Quantique", line: "Tu existes sur plusieurs pistes de danse à la fois", emoji: "🕺", weight: 1 },
+        { val: "Jardinage sur Mars", line: "Les tomates poussent différemment là-haut", emoji: "🌱", weight: 0.3 },
+      ],
+    }
   },
-  home: {
-    label: "HOME",
-    emoji: "🏡",
-    options: [
-      { val: "Studio Apartment", line: "Cozy, compact, and perfectly yours", emoji: "🛏️", rarity: "common", weight: 10 },
-      { val: "Shared Flat", line: "Roommates who eat your food, but still", emoji: "🏠", rarity: "common", weight: 10 },
-      { val: "Cozy Apartment", line: "Great coffee shop right downstairs", emoji: "🏢", rarity: "common", weight: 10 },
-      { val: "Suburban House", line: "White picket fence and a real garden", emoji: "🏡", rarity: "common", weight: 9 },
-      { val: "Countryside Cottage", line: "Fresh air, slow mornings, zero commute", emoji: "🌿", rarity: "common", weight: 8 },
-      { val: "Modern Townhouse", line: "Three floors of stylish city living", emoji: "🏘️", rarity: "uncommon", weight: 5 },
-      { val: "Penthouse", line: "City views and a rooftop pool", emoji: "🌆", rarity: "rare", weight: 2 },
-      { val: "Lakeside Villa", line: "Morning coffee with a lake view", emoji: "🌊", rarity: "rare", weight: 2 },
-      { val: "Treehouse", line: "Squirrels are your neighbors", emoji: "🌳", rarity: "uncommon", weight: 4 },
-      { val: "Castle", line: "You own a drawbridge. Yes, really.", emoji: "🏰", rarity: "epic", weight: 1 },
-      { val: "Private Island", line: "Food delivery arrives by helicopter", emoji: "🏝️", rarity: "legendary", weight: 0.3 },
-      { val: "Space Station", line: "Zero gravity cooking is trickier than expected", emoji: "🛸", rarity: "legendary", weight: 0.3 },
-    ]
+
+  de: {
+    tagline: "Scannen · Entdecken · Werden",
+    scanInstruction: "Halte deinen Finger auf den Scanner<br>um dein <strong>Schicksal</strong> zu enthüllen",
+    holdHint: "⟵ Drücken und halten ⟶",
+    pickTitle: "🔮 Dein Schicksal liegt in den Karten",
+    pickSub: "Klicke auf jede Karte, um deine Zukunft zu enthüllen",
+    seeMyFuture: "✨ Meine Zukunft sehen",
+    resultTitle: "⚡ DEINE ZUKUNFT IST BESIEGELT ⚡",
+    resultSubtitle: "— Dein persönlicher Zukunftsbericht —",
+    verdictLabel: "🤖 KI-Lebensbewertung",
+    scanAgain: "🔄 Erneut scannen",
+    footer: "Future Scanner 3000 · Nur zur Unterhaltung · Klasse 2026",
+    scanSteps: [
+      [20, 'Initialisierung...'],
+      [40, 'Biometrie lesen...'],
+      [58, 'Schicksalsdatenbank prüfen...'],
+      [72, 'Zeitlinie analysieren...'],
+      [85, 'Zukünftige Ereignisse abgleichen...'],
+      [95, 'Abschluss...'],
+      [100, 'SCAN ABGESCHLOSSEN ✓'],
+    ],
+    holdSteps: ['Stillhalten...', 'Biometrie lesen...', 'Schicksal analysieren...', 'Fast fertig...'],
+    categories: {
+      job:     { label: "BERUF",       emoji: "💼" },
+      salary:  { label: "GEHALT",      emoji: "💰" },
+      home:    { label: "ZUHAUSE",     emoji: "🏡" },
+      car:     { label: "FAHRZEUG",    emoji: "🚗" },
+      city:    { label: "STADT",       emoji: "🌍" },
+      partner: { label: "PARTNER",     emoji: "💑" },
+      pet:     { label: "HAUSTIER",    emoji: "🐾" },
+      power:   { label: "SUPERKRAFT",  emoji: "⚡" },
+      hobby:   { label: "HOBBY",       emoji: "🎯" },
+    },
+    verdicts: [
+      "Gar nicht schlecht! Deine Zukunft sieht hell aus und voller unerwarteter Überraschungen.",
+      "Wow. Diese Kombination ist entweder genial oder chaotisch. Wahrscheinlich beides.",
+      "Wissenschaftler sagen voraus, dass dies das interessanteste Leben der Menschheitsgeschichte ist.",
+      "Dein zukünftiges Ich ist bereits stolz auf das, was du wirst.",
+      "Diese Zukunft ist so gut, dass sogar deine Feinde neidisch sein werden.",
+      "Statistisch gesehen wirst du absolut gut zurechtkommen. Meistens.",
+      "Zukunftsanalysten haben dieses Schicksal bewertet: 9,4 / 10. Beeindruckend.",
+      "Warnung: Diese Zukunft kann extremes Glück und allgemeine Großartigkeit verursachen.",
+      "Dein Schicksal wurde vom Zukunftsbüro zertifiziert. Herzlichen Glückwunsch!",
+      "Wendung: Deine Zukunft ist besser als du dir vorgestellt hast. Viel besser.",
+    ],
+    futures: {
+      job: [
+        { val: "Software-Entwickler", line: "Du behebst Bugs, die niemand sonst versteht", emoji: "💻", weight: 10 },
+        { val: "Lehrer/in", line: "Köpfe formen, eine Stunde nach der anderen", emoji: "📚", weight: 10 },
+        { val: "Krankenpfleger/in", line: "Das Rückgrat jedes Krankenhauses", emoji: "🏥", weight: 10 },
+        { val: "Marketing-Manager", line: "Du lässt Menschen Dinge wollen, die sie nicht brauchten", emoji: "📊", weight: 10 },
+        { val: "Elektriker/in", line: "Das Licht für alle am Leuchten halten", emoji: "⚡", weight: 10 },
+        { val: "Grafikdesigner/in", line: "Deine Schriften sorgen online für Kontroversen", emoji: "🎨", weight: 9 },
+        { val: "Journalist/in", line: "Die Wahrheit ist da draußen — du findest sie", emoji: "📰", weight: 9 },
+        { val: "Koch/Köchin", line: "Michelin-Sterne sind zum Greifen nah", emoji: "👨‍🍳", weight: 5 },
+        { val: "Architekt/in", line: "Gebäude, bei denen Menschen stehenbleiben", emoji: "🏛️", weight: 5 },
+        { val: "Pilot/in", line: "Die Welt ist deine Landebahn", emoji: "✈️", weight: 5 },
+        { val: "Wissenschaftler/in", line: "Nobelpreis? Steht auf der Shortlist.", emoji: "🔬", weight: 5 },
+        { val: "Anwalt/Anwältin", line: "Einspruch stattgegeben. Jedes Mal.", emoji: "⚖️", weight: 2.5 },
+        { val: "Tierarzt/-ärztin", line: "Du liebst Tiere.", emoji: "🐶", weight: 2.5 },
+        { val: "YouTuber/in", line: "10 Mio. Abonnenten und es werden mehr", emoji: "📹", weight: 2 },
+        { val: "Pro-Gamer", line: "Die ganze Welt schaut dir beim Spielen zu", emoji: "🎮", weight: 2 },
+        { val: "Astronaut/in", line: "Die Erde sieht von hier oben wunderschön aus", emoji: "🚀", weight: 2 },
+        { val: "Roboteringenieur/in", line: "Die Zukunft bauen, Servo für Servo", emoji: "🤖", weight: 2 },
+        { val: "Chirurg/in", line: "Ruhige Hände, schärferer Geist", emoji: "🩻", weight: 2 },
+        { val: "Superheld/in", line: "Geheime Identität erforderlich", emoji: "🦸", weight: 1 },
+        { val: "Zeitreisende/r", line: "Du hast dein zukünftiges Ich schon getroffen", emoji: "⏰", weight: 1 },
+        { val: "Präsident/in", line: "Die Nation braucht dich", emoji: "🏛️", weight: 0.3 },
+      ],
+      salary: [
+        { val: "1.800€ / Monat", line: "Nudeln sind ein Lebensstil, keine Wahl", emoji: "😬", weight: 10 },
+        { val: "2.800€ / Monat", line: "Miete bezahlt, Lebensmittel gedeckt — knapp", emoji: "😐", weight: 10 },
+        { val: "4.200€ / Monat", line: "Komfortabel. Brunch ist jetzt Gewohnheit.", emoji: "🙂", weight: 10 },
+        { val: "6.500€ / Monat", line: "Das Sparkonto wächst wirklich", emoji: "😊", weight: 9 },
+        { val: "9.000€ / Monat", line: "Das gute Leben", emoji: "😎", weight: 5 },
+        { val: "15.000€ / Monat", line: "Business Class fühlt sich normal an", emoji: "🤑", weight: 5 },
+        { val: "30.000€ / Monat", line: "Dein Buchhalter hat einen Buchhalter", emoji: "💸", weight: 2 },
+        { val: "100K€ / Monat", line: "Privatjet? Schon gebucht.", emoji: "✈️", weight: 2 },
+        { val: "In Pizza bezahlt", line: "Wenigstens schmeckt es gut…", emoji: "🍕", weight: 4 },
+        { val: "1 Mio.€ / Jahr", line: "Du stellst Leute ein, nur um es zu zählen", emoji: "💎", weight: 1 },
+        { val: "1 Mio.€ / Monat", line: "Regierungen beneiden dein Budget", emoji: "👑", weight: 0.3 },
+      ],
+      home: [
+        { val: "Einzimmerwohnung", line: "Gemütlich, kompakt und ganz dein", emoji: "🛏️", weight: 10 },
+        { val: "WG", line: "Mitbewohner essen dein Essen, aber okay", emoji: "🏠", weight: 10 },
+        { val: "Gemütliche Wohnung", line: "Tolles Café direkt unten", emoji: "🏢", weight: 10 },
+        { val: "Reihenhaus", line: "Weißer Gartenzaun und echter Garten", emoji: "🏡", weight: 9 },
+        { val: "Landhaus", line: "Frische Luft, ruhige Morgen, null Pendelweg", emoji: "🌿", weight: 8 },
+        { val: "Modernes Stadthaus", line: "Drei Etagen stilvolles Stadtleben", emoji: "🏘️", weight: 5 },
+        { val: "Penthouse", line: "Stadtblick und Dachpool", emoji: "🌆", weight: 2 },
+        { val: "Seevilla", line: "Morgenkaffee mit Seeblick", emoji: "🌊", weight: 2 },
+        { val: "Baumhaus", line: "Eichhörnchen sind deine Nachbarn", emoji: "🌳", weight: 4 },
+        { val: "Schloss", line: "Du besitzt eine Zugbrücke. Wirklich.", emoji: "🏰", weight: 1 },
+        { val: "Privatinsel", line: "Lieferung kommt per Hubschrauber", emoji: "🏝️", weight: 0.3 },
+        { val: "Raumstation", line: "Kochen ohne Schwerkraft ist kniffliger als erwartet", emoji: "🛸", weight: 0.3 },
+      ],
+      car: [
+        { val: "Stadtfahrrad", line: "Tolles Cardio, null Benzinkosten", emoji: "🚲", weight: 10 },
+        { val: "Alter Roller", line: "Kommt ans Ziel — irgendwann", emoji: "🛵", weight: 10 },
+        { val: "Toyota Corolla", line: "Zuverlässig seit Anbeginn der Zeit", emoji: "🚗", weight: 10 },
+        { val: "Honda Civic", line: "Vernünftig und heimlich fahrspaßig", emoji: "🚘", weight: 10 },
+        { val: "Tesla Model 3", line: "Autopilot an. Hände kaum nötig.", emoji: "🔋", weight: 5 },
+        { val: "Tesla Cybertruck", line: "Kugelsicher und umstritten. Du liebst ihn.", emoji: "🛻", weight: 4 },
+        { val: "BMW M3", line: "Wochenendstraßen wurden dafür gemacht", emoji: "🏁", weight: 4 },
+        { val: "Porsche 911", line: "Klassisch. Zeitlos. Mühelos schnell.", emoji: "🏎️", weight: 2 },
+        { val: "Ferrari SF90", line: "Rot, 986 PS und absolut wahnsinnig", emoji: "🔴", weight: 2 },
+        { val: "Lamborghini Urus", line: "Tempolimits fühlen sich wie Vorschläge an", emoji: "⚡", weight: 2 },
+        { val: "Privatjet", line: "Warum fahren, wenn man fliegen kann?", emoji: "✈️", weight: 1 },
+        { val: "Teleporter", line: "0 km/h, überall sofort", emoji: "🌀", weight: 0.3 },
+      ],
+      city: [
+        { val: "Paris, Frankreich", line: "Croissants jeden einzelnen Morgen", emoji: "🥐", weight: 8 },
+        { val: "New York, USA", line: "Die Stadt, die niemals schläft", emoji: "🗽", weight: 8 },
+        { val: "Tokio, Japan", line: "Anime, Ramen und Neon überall", emoji: "🍣", weight: 8 },
+        { val: "London, UK", line: "Teezeit ist unverhandelbar", emoji: "🫖", weight: 8 },
+        { val: "Berlin, Deutschland", line: "Techno, Kunst und brutale Effizienz", emoji: "🎵", weight: 8 },
+        { val: "Barcelona, Spanien", line: "Späte Abendessen, Strandmorgen, immer warm", emoji: "🌞", weight: 8 },
+        { val: "Toronto, Kanada", line: "Höflich, multikulturell, leidenschaftlich beim Eishockey", emoji: "🍁", weight: 7 },
+        { val: "Dubai, VAE", line: "Gold-Geldautomaten gibt es hier wirklich", emoji: "🌇", weight: 4 },
+        { val: "Sydney, Australien", line: "Kängurus zwei Straßen weiter gesichtet", emoji: "🦘", weight: 4 },
+        { val: "Singapur", line: "Sauberste Stadt, schnellstes Internet, bestes Essen", emoji: "🏙️", weight: 4 },
+        { val: "Mondstadt", line: "Nur 384.000 km von zu Hause", emoji: "🌕", weight: 1 },
+        { val: "Mars-Kolonie", line: "Pionier des Roten Planeten", emoji: "🔴", weight: 0.3 },
+      ],
+      partner: [
+        { val: "Kindheitsfreund/in", line: "Ihr kanntet euch, bevor es kompliziert wurde", emoji: "🧡", weight: 10 },
+        { val: "Kolleg/in", line: "Büroromanze, die wirklich geklappt hat", emoji: "💼", weight: 10 },
+        { val: "Per App kennengelernt", line: "Skeptisch am Anfang. Noch nie glücklicher gewesen.", emoji: "📱", weight: 10 },
+        { val: "Auf Reisen kennengelernt", line: "Zufällige Stadt, richtiger Moment, perfekte Person", emoji: "🌍", weight: 9 },
+        { val: "Musiker/in", line: "Er/sie schreibt Lieder über dich. Gute.", emoji: "🎸", weight: 5 },
+        { val: "Arzt/Ärztin", line: "Kostenlose medizinische Beratung und schreckliche Arbeitszeiten", emoji: "🩺", weight: 5 },
+        { val: "Koch/Köchin", line: "Jede Mahlzeit ist ein Michelin-Erlebnis", emoji: "👨‍🍳", weight: 5 },
+        { val: "Abenteurer/in", line: "Jedes Wochenende eine neue Expedition", emoji: "🧗", weight: 4 },
+        { val: "Geheime Berühmtheit", line: "Paparazzi folgen dir jetzt auch", emoji: "🌟", weight: 2 },
+        { val: "Astronaut/in", line: "Fernbeziehung — wirklich sehr Fern-", emoji: "🚀", weight: 2 },
+        { val: "Zeitreisende/r", line: "Er/sie weiß schon, wie es endet. Gut.", emoji: "⏳", weight: 1 },
+        { val: "Für immer solo", line: "Totale Freiheit. Playlist für eine/n.", emoji: "🎧", weight: 5 },
+      ],
+      pet: [
+        { val: "Golden Retriever", line: "Liebt jeden. Besonders Fremde.", emoji: "🐕", weight: 10 },
+        { val: "Getigerte Katze", line: "Wirft absichtlich Dinge vom Tisch", emoji: "🐱", weight: 10 },
+        { val: "Hamster", line: "Läuft 10 km die Nacht ohne irgendwo hinzukommen", emoji: "🐹", weight: 10 },
+        { val: "Kaninchen", line: "Weich, schnell und nagt Kabel durch", emoji: "🐇", weight: 9 },
+        { val: "Papagei", line: "Kennt dein WLAN-Passwort. Erzählt es jedem.", emoji: "🦜", weight: 8 },
+        { val: "Axolotl", line: "Dauerhaft lächelnd, ewig seltsam", emoji: "🦎", weight: 5 },
+        { val: "Bartagame", line: "Sitzt auf deiner Schulter und urteilt über jeden", emoji: "🦖", weight: 5 },
+        { val: "Capybara", line: "Zen-Meister des Tierreichs", emoji: "🦫", weight: 2 },
+        { val: "Fennek", line: "Riesige Ohren, riesige Persönlichkeit, riesige Energie", emoji: "🦊", weight: 2 },
+        { val: "Sprechender Fuchs", line: "Er hat die Frage endlich beantwortet", emoji: "🦊", weight: 1 },
+        { val: "Mini-Drache", line: "Dient auch als Grillanzünder", emoji: "🐉", weight: 0.3 },
+      ],
+      power: [
+        { val: "Fotografisches Gedächtnis", line: "Du hast einmal gelernt und erinnerst dich noch an alles", emoji: "🧠", weight: 10 },
+        { val: "Nie Schlafen Müssen", line: "25 produktive Stunden am Tag", emoji: "😴", weight: 10 },
+        { val: "Jede Sprache sprechen", line: "Fließend in allem, sofort", emoji: "🗣️", weight: 9 },
+        { val: "Nie Verirren", line: "Internes GPS, immer genau", emoji: "🧭", weight: 9 },
+        { val: "Sofortige Heilung", line: "Verletzungen dauern etwa 30 Sekunden", emoji: "💊", weight: 5 },
+        { val: "Mit Tieren sprechen", line: "Deine Katze erklärt sich endlich", emoji: "🐾", weight: 5 },
+        { val: "Wetter kontrollieren", line: "Sonnenschein garantiert jedes Wochenende", emoji: "🌤️", weight: 5 },
+        { val: "Telekinese", line: "Die Fernbedienung gehorcht dir jetzt", emoji: "🧲", weight: 2 },
+        { val: "Unsichtbarkeit", line: "Langweilige Meetings finden einfach nicht statt", emoji: "👻", weight: 2 },
+        { val: "Fliegen", line: "Staus sind das Problem anderer", emoji: "🦅", weight: 2 },
+        { val: "Zeit anhalten", line: "5 extra Minuten Schlaf, jeden Morgen", emoji: "⏱️", weight: 1 },
+        { val: "Gedanken lesen", line: "Du kennst die Antwort bevor sie sprechen", emoji: "🔮", weight: 1 },
+        { val: "Allwissenheit", line: "Jede Antwort. Jede Frage. Immer.", emoji: "🌌", weight: 0.3 },
+      ],
+      hobby: [
+        { val: "Wandern", line: "Beine schmerzen, Aussichten absolut wert", emoji: "🥾", weight: 10 },
+        { val: "Kochen", line: "YouTube-Tutorials und null Angst", emoji: "🍳", weight: 10 },
+        { val: "Lesen", line: "Ein Buch pro Woche, keine Ausnahmen", emoji: "📖", weight: 10 },
+        { val: "Gaming", line: "Noch eine Runde. Immer noch eine.", emoji: "🎮", weight: 10 },
+        { val: "Laufen", line: "5 Uhr morgens. Niemand versteht dich.", emoji: "🏃", weight: 9 },
+        { val: "Fotografie", line: "Alles ist ein potenzieller Schnappschuss", emoji: "📷", weight: 9 },
+        { val: "Gitarre spielen", line: "Wonderwall ist das Einfallstor", emoji: "🎸", weight: 8 },
+        { val: "Malen", line: "Leinwände überall. Pinsel in allem.", emoji: "🖌️", weight: 5 },
+        { val: "Klettern", line: "Höhenangst? Überwunden.", emoji: "🧗", weight: 5 },
+        { val: "Astronomie", line: "Du kennst jedes Sternbild beim Namen", emoji: "🔭", weight: 4 },
+        { val: "Stadtimkerei", line: "Stadthonig, treue Kolonie, null Stiche", emoji: "🐝", weight: 2 },
+        { val: "Quanten-Tanzen", line: "Du existierst gleichzeitig auf mehreren Tanzflächen", emoji: "🕺", weight: 1 },
+        { val: "Mars-Gärtnerei", line: "Tomaten wachsen dort oben anders", emoji: "🌱", weight: 0.3 },
+      ],
+    }
   },
-  car: {
-    label: "VEHICLE",
-    emoji: "🚗",
-    options: [
-      { val: "City Bike", line: "Great cardio, zero fuel costs", emoji: "🚲", rarity: "common", weight: 10 },
-      { val: "Old Scooter", line: "Gets you there — eventually", emoji: "🛵", rarity: "common", weight: 10 },
-      { val: "Toyota Corolla", line: "Reliable since the dawn of time", emoji: "🚗", rarity: "common", weight: 10 },
-      { val: "Honda Civic", line: "Sensible and secretly fun to drive", emoji: "🚘", rarity: "common", weight: 10 },
-      { val: "Tesla Model 3", line: "Autopilot on. Hands barely needed.", emoji: "🔋", rarity: "uncommon", weight: 5 },
-      { val: "Tesla Cybertruck", line: "Bulletproof and divisive. You love it.", emoji: "🛻", rarity: "uncommon", weight: 4 },
-      { val: "BMW M3", line: "Weekend roads were made for this", emoji: "🏁", rarity: "uncommon", weight: 4 },
-      { val: "Porsche 911", line: "Classic. Timeless. Effortlessly fast.", emoji: "🏎️", rarity: "rare", weight: 2 },
-      { val: "Ferrari SF90", line: "Red, 986hp, and absolutely unhinged", emoji: "🔴", rarity: "rare", weight: 2 },
-      { val: "Lamborghini Urus", line: "Speed limits feel like suggestions", emoji: "⚡", rarity: "rare", weight: 2 },
-      { val: "Private Jet", line: "Why drive when you can fly?", emoji: "✈️", rarity: "epic", weight: 1 },
-      { val: "Teleporter", line: "0 km/h, instant everywhere", emoji: "🌀", rarity: "legendary", weight: 0.3 },
-    ]
-  },
-  city: {
-    label: "CITY",
-    emoji: "🌍",
-    options: [
-      { val: "Paris, France", line: "Croissants every single morning", emoji: "🥐", rarity: "common", weight: 8 },
-      { val: "New York, USA", line: "The city that never, ever sleeps", emoji: "🗽", rarity: "common", weight: 8 },
-      { val: "Tokyo, Japan", line: "Anime, ramen, and neon everywhere", emoji: "🍣", rarity: "common", weight: 8 },
-      { val: "London, UK", line: "Tea time is non-negotiable", emoji: "🫖", rarity: "common", weight: 8 },
-      { val: "Berlin, Germany", line: "Techno, art, and brutal efficiency", emoji: "🎵", rarity: "common", weight: 8 },
-      { val: "Barcelona, Spain", line: "Late dinners, beach mornings, always warm", emoji: "🌞", rarity: "common", weight: 8 },
-      { val: "Toronto, Canada", line: "Polite, multicultural, relentlessly hockey", emoji: "🍁", rarity: "common", weight: 7 },
-      { val: "Dubai, UAE", line: "Gold ATMs are genuinely real here", emoji: "🌇", rarity: "uncommon", weight: 4 },
-      { val: "Sydney, Australia", line: "Kangaroos spotted two streets over", emoji: "🦘", rarity: "uncommon", weight: 4 },
-      { val: "Singapore", line: "Cleanest city, fastest internet, best hawker food", emoji: "🏙️", rarity: "uncommon", weight: 4 },
-      { val: "Moon City", line: "Only 384,000 km from home", emoji: "🌕", rarity: "epic", weight: 1 },
-      { val: "Mars Colony", line: "Pioneer of the Red Planet", emoji: "🔴", rarity: "legendary", weight: 0.3 },
-    ]
-  },
-  partner: {
-    label: "PARTNER",
-    emoji: "💑",
-    options: [
-      { val: "Childhood Friend", line: "You knew each other before it got complicated", emoji: "🧡", rarity: "common", weight: 10 },
-      { val: "Coworker", line: "Office romance that actually worked out", emoji: "💼", rarity: "common", weight: 10 },
-      { val: "Met on an App", line: "Skeptical at first. Never been happier.", emoji: "📱", rarity: "common", weight: 10 },
-      { val: "Met Traveling", line: "Random city, right moment, perfect person", emoji: "🌍", rarity: "common", weight: 9 },
-      { val: "Musician", line: "They write songs about you. Good ones.", emoji: "🎸", rarity: "uncommon", weight: 5 },
-      { val: "Doctor", line: "Free medical advice and terrible work hours", emoji: "🩺", rarity: "uncommon", weight: 5 },
-      { val: "Chef", line: "Every meal is a Michelin-level experience", emoji: "👨‍🍳", rarity: "uncommon", weight: 5 },
-      { val: "Adventurer", line: "Every weekend is a new expedition", emoji: "🧗", rarity: "uncommon", weight: 4 },
-      { val: "Secret Celebrity", line: "Paparazzi follow you now too", emoji: "🌟", rarity: "rare", weight: 2 },
-      { val: "Astronaut", line: "Long-distance — like, really long distance", emoji: "🚀", rarity: "rare", weight: 2 },
-      { val: "Time Traveler", line: "They already know how it ends. Good.", emoji: "⏳", rarity: "epic", weight: 1 },
-      { val: "Solo Forever", line: "Total freedom. Playlist for one.", emoji: "🎧", rarity: "uncommon", weight: 5 },
-    ]
-  },
-  pet: {
-    label: "PET",
-    emoji: "🐾",
-    options: [
-      { val: "Golden Retriever", line: "Loves everyone. Especially strangers.", emoji: "🐕", rarity: "common", weight: 10 },
-      { val: "Tabby Cat", line: "Knocks things off tables on purpose", emoji: "🐱", rarity: "common", weight: 10 },
-      { val: "Hamster", line: "Runs 10km a night going absolutely nowhere", emoji: "🐹", rarity: "common", weight: 10 },
-      { val: "Rabbit", line: "Soft, fast, and chews through cables", emoji: "🐇", rarity: "common", weight: 9 },
-      { val: "Parrot", line: "Knows your WiFi password. Tells everyone.", emoji: "🦜", rarity: "common", weight: 8 },
-      { val: "Axolotl", line: "Perpetually smiling, eternally weird", emoji: "🦎", rarity: "uncommon", weight: 5 },
-      { val: "Bearded Dragon", line: "Sits on your shoulder judging everyone", emoji: "🦖", rarity: "uncommon", weight: 5 },
-      { val: "Capybara", line: "Zen master of the animal kingdom", emoji: "🦫", rarity: "rare", weight: 2 },
-      { val: "Fennec Fox", line: "Huge ears, huge personality, huge energy", emoji: "🦊", rarity: "rare", weight: 2 },
-      { val: "Talking Fox", line: "It finally answered the question", emoji: "🦊", rarity: "epic", weight: 1 },
-      { val: "Mini Dragon", line: "Doubles as a barbecue lighter", emoji: "🐉", rarity: "legendary", weight: 0.3 },
-    ]
-  },
-  power: {
-    label: "SUPER-POWER",
-    emoji: "⚡",
-    options: [
-      { val: "Photographic Memory", line: "You studied once and still remember it all", emoji: "🧠", rarity: "common", weight: 10 },
-      { val: "Never Need Sleep", line: "25 productive hours a day", emoji: "😴", rarity: "common", weight: 10 },
-      { val: "Speak Any Language", line: "Fluent in everything, instantly", emoji: "🗣️", rarity: "common", weight: 9 },
-      { val: "Never Get Lost", line: "Internal GPS, always accurate", emoji: "🧭", rarity: "common", weight: 9 },
-      { val: "Instant Healing", line: "Injuries last about 30 seconds", emoji: "💊", rarity: "uncommon", weight: 5 },
-      { val: "Talk to Animals", line: "Your cat finally explains itself", emoji: "🐾", rarity: "uncommon", weight: 5 },
-      { val: "Control the Weather", line: "Sunshine guaranteed every weekend", emoji: "🌤️", rarity: "uncommon", weight: 5 },
-      { val: "Telekinesis", line: "The remote control obeys you now", emoji: "🧲", rarity: "rare", weight: 2 },
-      { val: "Invisibility", line: "Boring meetings simply don't happen", emoji: "👻", rarity: "rare", weight: 2 },
-      { val: "Flight", line: "Traffic jams are someone else's problem", emoji: "🦅", rarity: "rare", weight: 2 },
-      { val: "Stop Time", line: "5 extra minutes of sleep, every morning", emoji: "⏱️", rarity: "epic", weight: 1 },
-      { val: "Mind Reading", line: "You know the answer before they speak", emoji: "🔮", rarity: "epic", weight: 1 },
-      { val: "Omniscience", line: "Every answer. Every question. Always.", emoji: "🌌", rarity: "legendary", weight: 0.3 },
-    ]
-  },
-  hobby: {
-    label: "HOBBY",
-    emoji: "🎯",
-    options: [
-      { val: "Hiking", line: "Legs aching, views absolutely worth it", emoji: "🥾", rarity: "common", weight: 10 },
-      { val: "Cooking", line: "YouTube tutorials and zero fear", emoji: "🍳", rarity: "common", weight: 10 },
-      { val: "Reading", line: "One book a week, no exceptions", emoji: "📖", rarity: "common", weight: 10 },
-      { val: "Gaming", line: "One more match. Always one more.", emoji: "🎮", rarity: "common", weight: 10 },
-      { val: "Running", line: "5am starts. No one understands you.", emoji: "🏃", rarity: "common", weight: 9 },
-      { val: "Photography", line: "Everything is a potential shot", emoji: "📷", rarity: "common", weight: 9 },
-      { val: "Playing Guitar", line: "Wonderwall is the gateway drug", emoji: "🎸", rarity: "common", weight: 8 },
-      { val: "Painting", line: "Canvases everywhere. Brushes in everything.", emoji: "🖌️", rarity: "uncommon", weight: 5 },
-      { val: "Rock Climbing", line: "Fear of heights? Conquered it.", emoji: "🧗", rarity: "uncommon", weight: 5 },
-      { val: "Astronomy", line: "You know every constellation by name", emoji: "🔭", rarity: "uncommon", weight: 4 },
-      { val: "Urban Beekeeping", line: "City honey, loyal colony, zero stings", emoji: "🐝", rarity: "rare", weight: 2 },
-      { val: "Quantum Dancing", line: "You exist on multiple dancefloors at once", emoji: "🕺", rarity: "epic", weight: 1 },
-      { val: "Mars Gardening", line: "Tomatoes grow differently up there", emoji: "🌱", rarity: "legendary", weight: 0.3 },
-    ]
+
+  es: {
+    tagline: "Escanear · Descubrir · Convertirse",
+    scanInstruction: "Mantén tu dedo en el escáner<br>para revelar tu <strong>destino</strong>",
+    holdHint: "⟵ Mantén pulsado ⟶",
+    pickTitle: "🔮 Tu destino está en las cartas",
+    pickSub: "Haz clic en cada carta para revelar tu futuro",
+    seeMyFuture: "✨ Ver Mi Futuro",
+    resultTitle: "⚡ TU FUTURO ESTÁ SELLADO ⚡",
+    resultSubtitle: "— Tu informe personal del futuro —",
+    verdictLabel: "🤖 Evaluación de Vida por IA",
+    scanAgain: "🔄 Escanear de Nuevo",
+    footer: "Future Scanner 3000 · Solo por Entretenimiento · Generación 2026",
+    scanSteps: [
+      [20, 'Inicializando...'],
+      [40, 'Leyendo biometría...'],
+      [58, 'Consultando base de datos del destino...'],
+      [72, 'Analizando línea temporal...'],
+      [85, 'Cotejando eventos futuros...'],
+      [95, 'Finalizando...'],
+      [100, 'ESCANEO COMPLETO ✓'],
+    ],
+    holdSteps: ['Quédate quieto...', 'Leyendo biometría...', 'Analizando destino...', 'Casi listo...'],
+    categories: {
+      job:     { label: "TRABAJO",     emoji: "💼" },
+      salary:  { label: "SALARIO",     emoji: "💰" },
+      home:    { label: "HOGAR",       emoji: "🏡" },
+      car:     { label: "VEHÍCULO",    emoji: "🚗" },
+      city:    { label: "CIUDAD",      emoji: "🌍" },
+      partner: { label: "PAREJA",      emoji: "💑" },
+      pet:     { label: "MASCOTA",     emoji: "🐾" },
+      power:   { label: "SUPERPODER",  emoji: "⚡" },
+      hobby:   { label: "AFICIÓN",     emoji: "🎯" },
+    },
+    verdicts: [
+      "¡Nada mal! Tu futuro se ve brillante y lleno de sorpresas inesperadas.",
+      "Vaya. Esta combinación es genial o caótica. Probablemente ambas.",
+      "Los científicos predicen que esta es la vida más interesante de la historia humana.",
+      "Tu yo futuro ya está orgulloso de en quién te estás convirtiendo.",
+      "Este futuro es tan bueno que incluso tus enemigos tendrán envidia.",
+      "Estadísticamente hablando, estarás absolutamente bien. Mayormente.",
+      "Los analistas del futuro calificaron este destino: 9,4 / 10. Impresionante.",
+      "Advertencia: este futuro puede causar felicidad extrema y grandiosidad general.",
+      "Tu destino ha sido certificado por la Oficina del Futuro. ¡Felicidades!",
+      "Giro inesperado: tu futuro es mejor de lo que imaginabas. Mucho mejor.",
+    ],
+    futures: {
+      job: [
+        { val: "Desarrollador/a de Software", line: "Arreglando bugs que nadie más entiende", emoji: "💻", weight: 10 },
+        { val: "Docente", line: "Moldeando mentes, una clase a la vez", emoji: "📚", weight: 10 },
+        { val: "Enfermero/a", line: "La columna vertebral de cada hospital", emoji: "🏥", weight: 10 },
+        { val: "Director/a de Marketing", line: "Haciendo que la gente quiera cosas que no necesitaba", emoji: "📊", weight: 10 },
+        { val: "Electricista", line: "Manteniendo las luces encendidas para todos", emoji: "⚡", weight: 10 },
+        { val: "Diseñador/a Gráfico/a", line: "Tus fuentes generan polémica en internet", emoji: "🎨", weight: 9 },
+        { val: "Periodista", line: "La verdad está ahí fuera — tú la encuentras", emoji: "📰", weight: 9 },
+        { val: "Chef", line: "Las estrellas Michelin están al alcance", emoji: "👨‍🍳", weight: 5 },
+        { val: "Arquitecto/a", line: "Edificios que hacen que la gente se detenga a mirar", emoji: "🏛️", weight: 5 },
+        { val: "Piloto/a", line: "El mundo es tu pista de aterrizaje", emoji: "✈️", weight: 5 },
+        { val: "Científico/a", line: "¿Premio Nobel? Está en la lista corta.", emoji: "🔬", weight: 5 },
+        { val: "Abogado/a", line: "Objeción admitida. Siempre.", emoji: "⚖️", weight: 2.5 },
+        { val: "Veterinario/a", line: "Amas a los animales.", emoji: "🐶", weight: 2.5 },
+        { val: "YouTuber", line: "10M de suscriptores y contando", emoji: "📹", weight: 2 },
+        { val: "Jugador/a Profesional", line: "El mundo entero te ve jugar", emoji: "🎮", weight: 2 },
+        { val: "Astronauta", line: "La Tierra se ve preciosa desde aquí", emoji: "🚀", weight: 2 },
+        { val: "Ingeniero/a Robótico/a", line: "Construyendo el futuro, servo a servo", emoji: "🤖", weight: 2 },
+        { val: "Cirujano/a", line: "Manos firmes, mente más afilada", emoji: "🩻", weight: 2 },
+        { val: "Superhéroe/ína", line: "Identidad secreta requerida", emoji: "🦸", weight: 1 },
+        { val: "Viajero/a del Tiempo", line: "Ya has conocido a tu yo futuro", emoji: "⏰", weight: 1 },
+        { val: "Presidente/a", line: "La nación te necesita", emoji: "🏛️", weight: 0.3 },
+      ],
+      salary: [
+        { val: "1.800€ / mes", line: "El ramen es un estilo de vida, no una elección", emoji: "😬", weight: 10 },
+        { val: "2.800€ / mes", line: "Alquiler pagado, compras cubiertas — por poco", emoji: "😐", weight: 10 },
+        { val: "4.200€ / mes", line: "Cómodo/a. El brunch es ahora un hábito.", emoji: "🙂", weight: 10 },
+        { val: "6.500€ / mes", line: "Los ahorros realmente crecen", emoji: "😊", weight: 9 },
+        { val: "9.000€ / mes", line: "Viviendo la buena vida", emoji: "😎", weight: 5 },
+        { val: "15.000€ / mes", line: "La clase business ya te parece normal", emoji: "🤑", weight: 5 },
+        { val: "30.000€ / mes", line: "Tu contable tiene un contable", emoji: "💸", weight: 2 },
+        { val: "100K€ / mes", line: "¿Jet privado? Ya reservado.", emoji: "✈️", weight: 2 },
+        { val: "Pagado en pizza", line: "Al menos sabe bien…", emoji: "🍕", weight: 4 },
+        { val: "1M€ / año", line: "Contratas gente solo para contarlo", emoji: "💎", weight: 1 },
+        { val: "1M€ / mes", line: "Los gobiernos envidian tu presupuesto", emoji: "👑", weight: 0.3 },
+      ],
+      home: [
+        { val: "Estudio", line: "Acogedor, compacto y perfectamente tuyo", emoji: "🛏️", weight: 10 },
+        { val: "Piso Compartido", line: "Los compañeros comen tu comida, pero bueno", emoji: "🏠", weight: 10 },
+        { val: "Apartamento Acogedor", line: "Gran cafetería justo abajo", emoji: "🏢", weight: 10 },
+        { val: "Casa en las Afueras", line: "Valla blanca y jardín de verdad", emoji: "🏡", weight: 9 },
+        { val: "Casa Rural", line: "Aire fresco, mañanas lentas, cero desplazamiento", emoji: "🌿", weight: 8 },
+        { val: "Casa Adosada Moderna", line: "Tres plantas de vida urbana con estilo", emoji: "🏘️", weight: 5 },
+        { val: "Ático", line: "Vistas a la ciudad y piscina en la azotea", emoji: "🌆", weight: 2 },
+        { val: "Villa al Borde del Lago", line: "Café mañanero con vistas al lago", emoji: "🌊", weight: 2 },
+        { val: "Casa en el Árbol", line: "Las ardillas son tus vecinas", emoji: "🌳", weight: 4 },
+        { val: "Castillo", line: "Tienes un puente levadizo. De verdad.", emoji: "🏰", weight: 1 },
+        { val: "Isla Privada", line: "El reparto llega en helicóptero", emoji: "🏝️", weight: 0.3 },
+        { val: "Estación Espacial", line: "Cocinar sin gravedad es más complicado de lo esperado", emoji: "🛸", weight: 0.3 },
+      ],
+      car: [
+        { val: "Bici de Ciudad", line: "Gran cardio, cero costes de combustible", emoji: "🚲", weight: 10 },
+        { val: "Vieja Moto", line: "Llega — eventualmente", emoji: "🛵", weight: 10 },
+        { val: "Toyota Corolla", line: "Fiable desde el principio de los tiempos", emoji: "🚗", weight: 10 },
+        { val: "Honda Civic", line: "Sensato y secretamente divertido de conducir", emoji: "🚘", weight: 10 },
+        { val: "Tesla Model 3", line: "Piloto automático activado. Las manos casi no hacen falta.", emoji: "🔋", weight: 5 },
+        { val: "Tesla Cybertruck", line: "A prueba de balas y divisivo. Lo amas.", emoji: "🛻", weight: 4 },
+        { val: "BMW M3", line: "Las carreteras de fin de semana fueron hechas para esto", emoji: "🏁", weight: 4 },
+        { val: "Porsche 911", line: "Clásico. Atemporal. Rápido sin esfuerzo.", emoji: "🏎️", weight: 2 },
+        { val: "Ferrari SF90", line: "Rojo, 986cv y absolutamente loco", emoji: "🔴", weight: 2 },
+        { val: "Lamborghini Urus", line: "Los límites de velocidad parecen sugerencias", emoji: "⚡", weight: 2 },
+        { val: "Jet Privado", line: "¿Por qué conducir cuando puedes volar?", emoji: "✈️", weight: 1 },
+        { val: "Teletransportador", line: "0 km/h, en todas partes instantáneamente", emoji: "🌀", weight: 0.3 },
+      ],
+      city: [
+        { val: "París, Francia", line: "Croissants cada mañana sin excepción", emoji: "🥐", weight: 8 },
+        { val: "Nueva York, EE.UU.", line: "La ciudad que nunca, jamás duerme", emoji: "🗽", weight: 8 },
+        { val: "Tokio, Japón", line: "Anime, ramen y neón por todas partes", emoji: "🍣", weight: 8 },
+        { val: "Londres, UK", line: "La hora del té es innegociable", emoji: "🫖", weight: 8 },
+        { val: "Berlín, Alemania", line: "Techno, arte y eficiencia brutal", emoji: "🎵", weight: 8 },
+        { val: "Barcelona, España", line: "Cenas tardías, mañanas en la playa, siempre cálido", emoji: "🌞", weight: 8 },
+        { val: "Toronto, Canadá", line: "Amable, multicultural, apasionado del hockey", emoji: "🍁", weight: 7 },
+        { val: "Dubái, EAU", line: "Los cajeros de oro son completamente reales aquí", emoji: "🌇", weight: 4 },
+        { val: "Sídney, Australia", line: "Canguros avistados a dos calles", emoji: "🦘", weight: 4 },
+        { val: "Singapur", line: "Ciudad más limpia, internet más rápido, mejor comida", emoji: "🏙️", weight: 4 },
+        { val: "Ciudad Lunar", line: "Solo a 384.000 km de casa", emoji: "🌕", weight: 1 },
+        { val: "Colonia en Marte", line: "Pionero del Planeta Rojo", emoji: "🔴", weight: 0.3 },
+      ],
+      partner: [
+        { val: "Amigo/a de la Infancia", line: "Os conocíais antes de que se complicara todo", emoji: "🧡", weight: 10 },
+        { val: "Compañero/a de Trabajo", line: "Romance de oficina que realmente funcionó", emoji: "💼", weight: 10 },
+        { val: "Conocido/a en una App", line: "Escéptico/a al principio. Nunca ha sido más feliz.", emoji: "📱", weight: 10 },
+        { val: "Conocido/a Viajando", line: "Ciudad al azar, momento justo, persona perfecta", emoji: "🌍", weight: 9 },
+        { val: "Músico/a", line: "Escribe canciones sobre ti. Buenas.", emoji: "🎸", weight: 5 },
+        { val: "Médico/a", line: "Consejos médicos gratis y horas de trabajo terribles", emoji: "🩺", weight: 5 },
+        { val: "Chef", line: "Cada comida es una experiencia Michelin", emoji: "👨‍🍳", weight: 5 },
+        { val: "Aventurero/a", line: "Cada fin de semana es una nueva expedición", emoji: "🧗", weight: 4 },
+        { val: "Celebridad Secreta", line: "Los paparazzi te siguen a ti también ahora", emoji: "🌟", weight: 2 },
+        { val: "Astronauta", line: "Larga distancia — realmente muy larga distancia", emoji: "🚀", weight: 2 },
+        { val: "Viajero/a del Tiempo", line: "Ya sabe cómo termina. Bien.", emoji: "⏳", weight: 1 },
+        { val: "Solo/a para Siempre", line: "Libertad total. Playlist para uno/a.", emoji: "🎧", weight: 5 },
+      ],
+      pet: [
+        { val: "Golden Retriever", line: "Ama a todos. Especialmente a los desconocidos.", emoji: "🐕", weight: 10 },
+        { val: "Gato Atigrado", line: "Tira cosas de la mesa a propósito", emoji: "🐱", weight: 10 },
+        { val: "Hámster", line: "Corre 10 km de noche sin llegar a ningún lado", emoji: "🐹", weight: 10 },
+        { val: "Conejo", line: "Suave, rápido y muerde los cables", emoji: "🐇", weight: 9 },
+        { val: "Loro", line: "Sabe tu contraseña WiFi. Se lo dice a todos.", emoji: "🦜", weight: 8 },
+        { val: "Ajolote", line: "Sonrisa permanente, rareza eterna", emoji: "🦎", weight: 5 },
+        { val: "Dragón Barbudo", line: "Se sienta en tu hombro juzgando a todos", emoji: "🦖", weight: 5 },
+        { val: "Capibara", line: "Maestro zen del reino animal", emoji: "🦫", weight: 2 },
+        { val: "Zorro Fennec", line: "Orejas enormes, personalidad enorme, energía enorme", emoji: "🦊", weight: 2 },
+        { val: "Zorro Parlante", line: "Por fin respondió la pregunta", emoji: "🦊", weight: 1 },
+        { val: "Mini Dragón", line: "También sirve como encendedor de barbacoa", emoji: "🐉", weight: 0.3 },
+      ],
+      power: [
+        { val: "Memoria Fotográfica", line: "Estudiaste una vez y aún lo recuerdas todo", emoji: "🧠", weight: 10 },
+        { val: "No Necesitar Dormir", line: "25 horas productivas al día", emoji: "😴", weight: 10 },
+        { val: "Hablar Cualquier Idioma", line: "Fluido en todo, al instante", emoji: "🗣️", weight: 9 },
+        { val: "Nunca Perderse", line: "GPS interno, siempre preciso", emoji: "🧭", weight: 9 },
+        { val: "Curación Instantánea", line: "Las heridas duran unos 30 segundos", emoji: "💊", weight: 5 },
+        { val: "Hablar con Animales", line: "Tu gato por fin se explica", emoji: "🐾", weight: 5 },
+        { val: "Controlar el Clima", line: "Sol garantizado cada fin de semana", emoji: "🌤️", weight: 5 },
+        { val: "Telequinesis", line: "El mando a distancia te obedece ahora", emoji: "🧲", weight: 2 },
+        { val: "Invisibilidad", line: "Las reuniones aburridas simplemente no ocurren", emoji: "👻", weight: 2 },
+        { val: "Volar", line: "Los atascos son problema de otros", emoji: "🦅", weight: 2 },
+        { val: "Detener el Tiempo", line: "5 minutos extra de sueño, cada mañana", emoji: "⏱️", weight: 1 },
+        { val: "Leer la Mente", line: "Sabes la respuesta antes de que hablen", emoji: "🔮", weight: 1 },
+        { val: "Omnisciencia", line: "Todas las respuestas. Todas las preguntas. Siempre.", emoji: "🌌", weight: 0.3 },
+      ],
+      hobby: [
+        { val: "Senderismo", line: "Piernas cansadas, vistas absolutamente imprescindibles", emoji: "🥾", weight: 10 },
+        { val: "Cocinar", line: "Tutoriales de YouTube y cero miedo", emoji: "🍳", weight: 10 },
+        { val: "Leer", line: "Un libro a la semana, sin excepciones", emoji: "📖", weight: 10 },
+        { val: "Gaming", line: "Una partida más. Siempre una más.", emoji: "🎮", weight: 10 },
+        { val: "Correr", line: "Salidas a las 5am. Nadie te entiende.", emoji: "🏃", weight: 9 },
+        { val: "Fotografía", line: "Todo es una potencial foto", emoji: "📷", weight: 9 },
+        { val: "Tocar la Guitarra", line: "Wonderwall es la puerta de entrada", emoji: "🎸", weight: 8 },
+        { val: "Pintura", line: "Lienzos por todas partes. Pinceles en todo.", emoji: "🖌️", weight: 5 },
+        { val: "Escalada", line: "¿Miedo a las alturas? Superado.", emoji: "🧗", weight: 5 },
+        { val: "Astronomía", line: "Conoces cada constelación por su nombre", emoji: "🔭", weight: 4 },
+        { val: "Apicultura Urbana", line: "Miel de ciudad, colonia leal, cero picaduras", emoji: "🐝", weight: 2 },
+        { val: "Baile Cuántico", line: "Existes en varias pistas de baile a la vez", emoji: "🕺", weight: 1 },
+        { val: "Jardinería en Marte", line: "Los tomates crecen diferente ahí arriba", emoji: "🌱", weight: 0.3 },
+      ],
+    }
   }
 };
 
-const VERDICTS = [
-  "Not bad at all! Your future looks bright and full of unexpected surprises.",
-  "Wow. This combination is either genius or chaotic. Probably both.",
-  "Scientists predict this is the most interesting life in human history.",
-  "Your future self is already proud of who you're becoming.",
-  "This future is so good, even your enemies will be jealous.",
-  "Statistically speaking, you will be absolutely fine. Mostly.",
-  "Future analysts rated this destiny: 9.4 / 10. Impressive.",
-  "Warning: this future may cause extreme happiness and general awesomeness.",
-  "Your destiny has been certified by the Future Bureau. Congrats!",
-  "Plot twist: your future is better than you imagined. Way better.",
-];
+// ══════════════════════════════════════════
+// ── LANGUAGE STATE ──
+// ══════════════════════════════════════════
+let currentLang = 'en';
 
-// ── STATE ──
+function t(key) {
+  return TRANSLATIONS[currentLang][key];
+}
+
+function setLang(lang) {
+  currentLang = lang;
+
+  // Update active button
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent === lang.toUpperCase());
+  });
+
+  // Update all data-i18n elements (except those that need HTML)
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if (val !== undefined) {
+      el.innerHTML = val;
+    }
+  });
+
+  // If currently on cards or result screen and not yet started, re-render safely
+  // (cards/result are only visible after scanning, no need to re-render mid-game)
+}
+
+// ══════════════════════════════════════════
+// ── CORE LOGIC ──
+// ══════════════════════════════════════════
+const CATEGORIES = ['job','salary','home','car','city','partner','pet','power','hobby'];
 let chosen = {};
 let flippedCount = 0;
-const CATEGORIES = ['job','salary','home','car','city','partner','pet','power','hobby'];
 
-// ✅ CORRECTION — respecte les poids
 function pick(arr) {
-  const total = arr.reduce((sum, item) => sum + item.weight, 0);
+  if (!Array.isArray(arr)) {
+    // verdicts array
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+  const total = arr.reduce((sum, item) => sum + (item.weight || 1), 0);
   let rand = Math.random() * total;
   for (const item of arr) {
-    rand -= item.weight;
+    rand -= (item.weight || 1);
     if (rand <= 0) return item;
   }
   return arr[arr.length - 1];
 }
 
-// ── HOLD-TO-SCAN LOGIC ──
+// ── HOLD-TO-SCAN ──
 let scanning = false;
-let holdTimer = null;
-let holdProgress = 0;
 let holdRAF = null;
-const HOLD_DURATION = 2000; // ms to hold
+let holdProgress = 0;
+const HOLD_DURATION = 2000;
+const CIRCUMFERENCE = 2 * Math.PI * 103;
 
 const fpBtn = document.getElementById('fpBtn');
 const holdCircle = document.getElementById('holdCircle');
-const CIRCUMFERENCE = 2 * Math.PI * 103; // ~647
 
 function startHold(e) {
   if (scanning) return;
@@ -721,15 +1339,10 @@ function startHold(e) {
   function animate(now) {
     const elapsed = now - startTime;
     holdProgress = Math.min(elapsed / HOLD_DURATION, 1);
-    const offset = CIRCUMFERENCE * (1 - holdProgress);
-    holdCircle.style.strokeDashoffset = offset;
-
-    // status text
-    const status = document.getElementById('scanStatus');
-    if (holdProgress < 0.3) status.textContent = 'Hold still...';
-    else if (holdProgress < 0.6) status.textContent = 'Reading biometrics...';
-    else if (holdProgress < 0.9) status.textContent = 'Analyzing destiny...';
-    else status.textContent = 'Almost done...';
+    holdCircle.style.strokeDashoffset = CIRCUMFERENCE * (1 - holdProgress);
+    const steps = t('holdSteps');
+    const idx = holdProgress < 0.3 ? 0 : holdProgress < 0.6 ? 1 : holdProgress < 0.9 ? 2 : 3;
+    document.getElementById('scanStatus').textContent = steps[idx];
 
     if (holdProgress < 1) {
       holdRAF = requestAnimationFrame(animate);
@@ -761,21 +1374,10 @@ fpBtn.addEventListener('touchend', cancelHold);
 fpBtn.addEventListener('touchcancel', cancelHold);
 
 function startScan() {
-  const wrap = document.getElementById('scanBarWrap');
+  document.getElementById('scanBarWrap').style.display = 'block';
   const bar = document.getElementById('scanBar');
   const status = document.getElementById('scanStatus');
-  wrap.style.display = 'block';
-
-  const steps = [
-    [20, 'Initializing...'],
-    [40, 'Reading biometrics...'],
-    [58, 'Checking destiny database...'],
-    [72, 'Analyzing timeline...'],
-    [85, 'Cross-referencing future events...'],
-    [95, 'Finalizing...'],
-    [100, 'SCAN COMPLETE ✓'],
-  ];
-
+  const steps = t('scanSteps');
   let i = 0;
   function step() {
     if (i >= steps.length) { setTimeout(() => showCards(), 600); return; }
@@ -790,45 +1392,42 @@ function startScan() {
 // ── CARDS ──
 function showCards() {
   document.getElementById('screen-scan').classList.remove('active');
-  const cs = document.getElementById('screen-cards');
-  cs.classList.add('active');
+  document.getElementById('screen-cards').classList.add('active');
 
-  // assign random values
   CATEGORIES.forEach(cat => {
-    chosen[cat] = pick(FUTURES[cat].options);
+    chosen[cat] = pick(TRANSLATIONS[currentLang].futures[cat]);
   });
 
   const grid = document.getElementById('cardsGrid');
   grid.innerHTML = '';
   flippedCount = 0;
 
-  CATEGORIES.forEach((cat, idx) => {
-    const data = FUTURES[cat];
+  CATEGORIES.forEach((cat) => {
+    const catData = t('categories')[cat];
     const item = chosen[cat];
     const wrap = document.createElement('div');
     wrap.className = `card-wrap cat-${cat}`;
-    wrap.dataset.idx = idx;
     wrap.innerHTML = `
       <div class="card-inner">
         <div class="card-face card-back-face">
-          <div class="card-back-symbol">${data.emoji}</div>
-          <div class="card-back-label">${data.label}</div>
+          <div class="card-back-symbol">${catData.emoji}</div>
+          <div class="card-back-label">${catData.label}</div>
         </div>
         <div class="card-face card-front-face">
-          <div class="card-cat">${data.label}</div>
+          <div class="card-cat">${catData.label}</div>
           <div class="card-emoji">${item.emoji}</div>
           <div class="card-value">${item.val}</div>
           <div class="card-line">${item.line}</div>
         </div>
       </div>`;
-    wrap.addEventListener('click', () => flipCard(wrap, cat));
+    wrap.addEventListener('click', () => flipCard(wrap));
     grid.appendChild(wrap);
   });
 }
 
-function flipCard(wrap, cat) {
+function flipCard(wrap) {
   if (wrap.classList.contains('flipped') || wrap.classList.contains('disabled')) return;
-  wrap.classList.add('flipped','disabled');
+  wrap.classList.add('flipped', 'disabled');
   flippedCount++;
   if (flippedCount === CATEGORIES.length) {
     document.getElementById('btnResult').style.display = 'inline-block';
@@ -838,31 +1437,29 @@ function flipCard(wrap, cat) {
 // ── RESULT ──
 function showResult() {
   document.getElementById('screen-cards').classList.remove('active');
-  const rs = document.getElementById('screen-result');
-  rs.classList.add('active');
-
-  document.getElementById('resultName').textContent = '— Your personal future report —';
+  document.getElementById('screen-result').classList.add('active');
+  document.getElementById('resultName').textContent = t('resultSubtitle');
 
   const grid = document.getElementById('resultGrid');
   grid.innerHTML = '';
   CATEGORIES.forEach(cat => {
-    const data = FUTURES[cat];
+    const catData = t('categories')[cat];
     const item = chosen[cat];
     const card = document.createElement('div');
     card.className = 'result-card';
     card.innerHTML = `
       <div class="rc-emoji">${item.emoji}</div>
-      <div class="rc-cat">${data.label}</div>
+      <div class="rc-cat">${catData.label}</div>
       <div class="rc-val">${item.val}</div>
       <div class="rc-sub">${item.line}</div>`;
     grid.appendChild(card);
   });
 
-  document.getElementById('verdictText').textContent = pick(VERDICTS);
+  const verdicts = t('verdicts');
+  document.getElementById('verdictText').textContent = verdicts[Math.floor(Math.random() * verdicts.length)];
 
-  // happiness stars based on "quality" of outcome
   const luxury = [chosen.salary.val, chosen.home.val, chosen.car.val]
-    .join('').match(/million|island|penthouse|castle|ferrari|lambo|jet|100K|1M/i);
+    .join('').match(/million|island|penthouse|castle|ferrari|lambo|jet|100K|1M|Mio|privée|île|île|château|Schloss|Insel|privada|castillo|ático|million|privat|mois|jour|année|million/i);
   document.getElementById('happinessStars').textContent = luxury ? '⭐⭐⭐⭐⭐' : '⭐⭐⭐⭐';
 
   launchConfetti();
@@ -874,14 +1471,8 @@ function launchConfetti() {
   for (let i = 0; i < 60; i++) {
     const el = document.createElement('div');
     el.className = 'confetti-piece';
-    el.style.cssText = `
-      left:${Math.random()*100}vw;
-      background:${pick(colors)};
-      animation-duration:${2+Math.random()*3}s;
-      animation-delay:${Math.random()*.8}s;
-      transform:rotate(${Math.random()*360}deg);
-      border-radius:${Math.random()>.5?'50%':'2px'};
-    `;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    el.style.cssText = `left:${Math.random()*100}vw;background:${color};animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*.8}s;transform:rotate(${Math.random()*360}deg);border-radius:${Math.random()>.5?'50%':'2px'};`;
     document.body.appendChild(el);
     el.addEventListener('animationend', () => el.remove());
   }
